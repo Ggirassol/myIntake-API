@@ -1,7 +1,6 @@
 const { client, connectToDatabase } = require('./db/dbconnect');
 
 async function selectIntakeByDate(userId, date) {
-    console.log(date)
         try {
             await connectToDatabase();
             const db = client.db("myIntake");
@@ -16,9 +15,6 @@ async function selectIntakeByDate(userId, date) {
         catch (err) {
             console.log("ERROR: ",err)
         }
-    finally {
-        await client.close();
-      }
 }
 
 
