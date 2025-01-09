@@ -1,3 +1,4 @@
+const { ObjectId } = require("bson");
 const { connectToDatabase, client } = require("./dbconnect");
 const bcrypt = require('bcrypt');
 
@@ -25,28 +26,28 @@ async function seedTestingDatabase() {
 
     const userDocs = [
       {
-        _id: "6778436ee5e8aac81fb73f15",
+        _id: ObjectId("6778436ee5e8aac81fb73f15"),
         name: "Maria",
         email: "maria@example.com",
         password: hashPasswords[0],
         createdAt: "2025-01-01",
       },
       {
-        _id: "aa345ccd778fbde485ffaeda",
+        _id: ObjectId("aa345ccd778fbde485ffaeda"),
         name: "Rui",
         email: "rui@example.com",
         password: hashPasswords[1],
         createdAt: "2024-12-31",
       },
       {
-        _id: "abc3548cafebcf7586acde8",
+        _id: ObjectId("abc3548cafebcf7586acde80"),
         name: "Joana",
         email: "joana@example.com",
         password: hashPasswords[2],
         createdAt: "2024-12-25",
       },
       {
-        _id: "684abefee8356aceaff74bb4",
+        _id: ObjectId("684abefee8356aceaff74bb4"),
         name: "Pedro",
         email: "pedro@example.com",
         password: hashPasswords[3],
@@ -113,7 +114,5 @@ async function seedTestingDatabase() {
     console.log("Error seeding database:", err);
   }
 }
-
-seedTestingDatabase();
 
 module.exports = { seedTestingDatabase };
