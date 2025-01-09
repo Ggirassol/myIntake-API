@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 const { getIntakeByDate } = require("./controllers.js");
+const { handleCustomErrors } = require("./handleCustomErrors.js");
 
 if (process.env.NODE_ENV !== "test") {
     const PORT = process.env.PORT || 3000;
@@ -11,5 +12,6 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 app.get("/api/:userId/:date", getIntakeByDate);
+app.use(handleCustomErrors)
 
 module.exports = app;
