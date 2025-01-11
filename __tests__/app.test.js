@@ -1,6 +1,5 @@
 const request = require("supertest");
 const app = require("../app.js");
-const { beforeEach } = require("node:test");
 const { seedTestingDatabase } = require("../db/seed.js");
 const { client } = require("../db/dbconnect.js");
 
@@ -8,7 +7,7 @@ beforeEach(async () => {
   await seedTestingDatabase();
 });
 
-afterEach(async () => {
+afterAll(async () => {
    await client.close();
 });
 
@@ -64,3 +63,37 @@ describe("GET /api/:userId/:date", () => {
       })
     })
   });
+
+describe("POST /api/users", () => {
+  it("returns an object with name, username and createdAt containing sign up date when sent a valid email and password", () => {
+    return request(app)
+      .post("/api/users")
+      .send({
+        username: "Glória",
+        email: "gloria@example.com",
+        password: "bcLdef68.0;",
+      })
+      .expect(201)
+      .then((res) => {
+        const result = res.body.result;
+        expect(result).toMatchObject({
+          sucess: true,
+        });
+      });
+  });
+  it("returns an error message when given an email already in use", () => {
+    return request(app)
+      .post("/api/users")
+      .send({
+        username: "Julia",
+        email: "maria@example.com",
+        password: "sdfgh7k;bjhvg8L",
+      })
+      .expect(400)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("Email already registered");
+      });
+  });
+});
+
