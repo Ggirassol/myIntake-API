@@ -1,4 +1,4 @@
-const { selectIntakeByDate } = require('./models.js');
+const { selectIntakeByDate, createUser } = require('./models.js');
 
 function getIntakeByDate(req, res, next) {
     const userId = req.params.userId;
@@ -10,5 +10,14 @@ function getIntakeByDate(req, res, next) {
     .catch((err) => next(err));
 }
 
+function addUser(req, res, next) {
+    const { username, email, password } = req.body;
+    createUser(username, email, password)
+    .then((result) => {
+        res.status(201).send({ result })
+    })
+    .catch((err) => next(err));
+}
 
-module.exports = { getIntakeByDate }
+
+module.exports = { getIntakeByDate, addUser }
