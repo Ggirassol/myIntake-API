@@ -64,10 +64,10 @@ describe("GET /api/:userId/:date", () => {
     })
   });
 
-describe("POST /api/users", () => {
+describe("POST /api/register", () => {
   it("returns an object with name, username and createdAt containing sign up date when sent a valid email and password", () => {
     return request(app)
-      .post("/api/users")
+      .post("/api/register")
       .send({
         username: "Glória",
         email: "gloria@example.com",
@@ -83,7 +83,7 @@ describe("POST /api/users", () => {
   });
   it("returns an error message when given an email already in use", () => {
     return request(app)
-      .post("/api/users")
+      .post("/api/register")
       .send({
         username: "Julia",
         email: "maria@example.com",
