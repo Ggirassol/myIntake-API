@@ -1,6 +1,6 @@
-const { is } = require('@babel/types');
 const { client, connectToDatabase } = require('./db/dbconnect');
-const { bcryptPassword } = require('./utils');
+const { bcryptPassword, passwordMatches } = require('./utils');
+const jwt = require('jsonwebtoken');
 
 async function selectIntakeByDate(userId, date) {
     const regexUserId = /^[a-f0-9]+$/;
@@ -24,6 +24,7 @@ async function selectIntakeByDate(userId, date) {
             if (!intake) {
                 return Promise.reject({ status: 404, msg: "No intake found for the given userID and date"})
             }
+            console.log(intake)
             return intake
         }
         catch (err) {
@@ -57,5 +58,35 @@ async function createUser(username, email, password) {
     }
 }
 
+async function logUser(email, password) {
+  try {
+    await connectToDatabase();
+    const db = client.db("myIntake");
+    const users = db.collection("users");
 
-module.exports = { selectIntakeByDate, createUser }
+    const user = await users.findOne({ email: email });
+
+    if (user) {
+      const passwordIsValid = await passwordMatches(password, user.password);
+      if (passwordIsValid) {
+        const token = jwt.sign(
+          { data: user._id.toString() },
+          process.env.TOKEN,
+          { expiresIn: "15m" }
+        );
+        const refreshToken = jwt.sign(
+          { data: user._id.toString() },
+          process.env.REFRESH_TOKEN,
+          { expiresIn: "30d" }
+        );
+        return { token, refreshToken, userId: user._id.toString() };
+      }
+      return Promise.reject({ status: 401, msg: "Invalid Credentials" });
+    }
+    return Promise.reject({ status: 401, msg: "Invalid Credentials" });
+  } catch (err) {
+    console.log("ERROR: ", err);
+  }
+}
+
+module.exports = { selectIntakeByDate, createUser, logUser }

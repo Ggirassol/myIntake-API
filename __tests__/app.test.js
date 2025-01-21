@@ -97,3 +97,44 @@ describe("POST /api/register", () => {
   });
 });
 
+describe("POST /api/auth", () => {
+  it("returns a token when passed a valid email and password", () => {
+    return request(app)
+    .post("/api/auth")
+    .send({
+      email: "rui@example.com",
+      password: "56bvcxnsvczx"
+    })
+    .expect(200)
+    .then((res) => {
+      const result = res.body;
+      expect(result).toHaveProperty("tokens")
+    })
+  })
+  it("returns an error message when passed an invalid email. Code 401", () => {
+    return request(app)
+    .post("/api/auth")
+    .send({
+      email: "alface@example.com",
+      password: "56bvcxnsvczx"
+    })
+    .expect(401)
+    .then((res) => {
+      const error = res.body;
+      expect(error.msg).toBe("Invalid Credentials")
+    })
+  })
+  it("returns an error message when passed an invalid password. Code 401", () => {
+    return request(app)
+    .post("/api/auth")
+    .send({
+      email: "rui@example.com",
+      password: "amarelo49"
+    })
+    .expect(401)
+    .then((res) => {
+      const error = res.body;
+      expect(error.msg).toBe("Invalid Credentials")
+    })
+  })
+})
