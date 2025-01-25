@@ -183,3 +183,59 @@ describe("POST /api/auth", () => {
     })
   })
 })
+
+describe("POST /api/refresh-token", () => {
+  it("returns new generated tokens when passed a valid refresh token", () => {
+    const validRefreshToken = jwt.sign({ userId: "aa345ccd778fbde485ffaeda" }, process.env.REFRESH_TOKEN, { expiresIn: 60 * 15 });
+    return request(app)
+    .post("/api/refresh-token")
+    .send({
+      token: validRefreshToken
+    })
+    .expect(200)
+    .then((res) => {
+      const result = res.body.tokens;
+      expect(result).toHaveProperty("token")
+      expect(result).toHaveProperty("refreshToken")
+    })
+  })
+  it("returns error when passed an invalid refresh token", () => {
+    const invalidRefreshToken = "invalid"
+      return request(app)
+        .post("/api/refresh-token")
+        .send({
+          token: invalidRefreshToken,
+        })
+        .expect(403)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("Invalid or expired refresh token");
+        });
+  })
+  it("returns error when passed an expired refresh token", () => {
+    const expiredRefreshToken = jwt.sign(
+      { userId: "aa345ccd778fbde485ffaeda" },
+      process.env.REFRESH_TOKEN,
+      { expiresIn: -1 }
+    );
+      return request(app)
+        .post("/api/refresh-token")
+        .send({
+          token: expiredRefreshToken,
+        })
+        .expect(403)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("Invalid or expired refresh token");
+        });
+  });
+  it("returns error when passed no refresh token", () => {
+      return request(app)
+        .post("/api/refresh-token")
+        .expect(401)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("No refresh token");
+        });
+  });
+})

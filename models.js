@@ -72,7 +72,7 @@ async function logUser(email, password) {
         const token = jwt.sign(
           { data: user._id.toString() },
           process.env.TOKEN,
-          { expiresIn: "15m" }
+          { expiresIn: "15s" }
         );
         const refreshToken = jwt.sign(
           { data: user._id.toString() },
@@ -89,4 +89,28 @@ async function logUser(email, password) {
   }
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser }
+function generateNewToken(refreshToken) {
+  if (!refreshToken) {
+    return Promise.reject({ status: 401, msg: "No refresh token" });
+  }
+  return new Promise((resolve, reject) => {
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, payload) => {
+      if (err) {
+        reject({ status: 403, msg: "Invalid or expired refresh token" });
+      } else {
+        const userId = payload.userId;
+        const newToken = jwt.sign({ data: userId }, process.env.TOKEN, {
+          expiresIn: "15m",
+        });
+        const newRefreshToken = jwt.sign(
+          { data: userId },
+          process.env.REFRESH_TOKEN,
+          { expiresIn: "30d" }
+        );
+        resolve({ token: newToken, refreshToken: newRefreshToken, userId });
+      }
+    });
+  });
+}
+
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken }
