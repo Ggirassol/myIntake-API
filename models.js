@@ -100,7 +100,7 @@ function generateNewToken(refreshToken) {
       } else {
         const userId = payload.userId;
         const newToken = jwt.sign({ data: userId }, process.env.TOKEN, {
-          expiresIn: "15m",
+          expiresIn: "15s",
         });
         const newRefreshToken = jwt.sign(
           { data: userId },
