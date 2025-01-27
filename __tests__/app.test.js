@@ -239,3 +239,93 @@ describe("POST /api/refresh-token", () => {
         });
   });
 })
+
+describe("POST /api/add-intake", () => {
+  it("returns an object with the key values of success: true and intake: added intaked object. Code 201", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    return request(app)
+    .post("/api/add-intake")
+    .set("Authorization", `Bearer ${validToken}`)
+    .send({
+      userId: "aa345ccd778fbde485ffaeda",
+      date: today,
+      kcal: 5000,
+      protein: 100,
+      carbs: 300,
+    })
+    .expect(201)
+    .then((res) => {
+      const result = res.body.result
+      expect(result).toMatchObject({
+        sucess: true,
+        intake: {
+          date: today,
+          kcal: 5000,
+          protein: 100,
+          carbs: 300,
+        }
+      })
+    })
+  })
+  it("returns an error message when there are any missing fields. Code 400", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+
+    const missingUserId = { date: today, kcal: 5000, protein: 100, carbs: 300 };
+    const missingDate = { userId: "aa345ccd778fbde485ffaeda", kcal: 5000, protein: 100, carbs: 300 };
+    const missingKcal = { userId: "aa345ccd778fbde485ffaeda", date: today, protein: 100, carbs: 300 };
+    const missingProtein =  { userId: "aa345ccd778fbde485ffaeda", date: today, kcal: 5000, carbs: 300 };
+    const missingCarbs =  { userId: "aa345ccd778fbde485ffaeda", date: today, kcal: 5000, protein: 100};
+
+    const missingFields =  [missingUserId, missingDate, missingKcal, missingProtein, missingCarbs ];
+
+    return Promise.all(
+      missingFields.map(async objectWithMissingField => {
+        return request(app)
+        .post("/api/add-intake")
+        .set("Authorization", `Bearer ${validToken}`)
+        .send(objectWithMissingField)
+        .expect(400)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("Missing required fields");
+        });
+      })
+    )
+  })
+  it("returns an error message when no token, code 401", () => {
+    return request(app)
+      .post("/api/add-intake")
+      .set("Authorization", "")
+      .expect(401)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("No token");
+      });
+  });
+  it("returns an error message when invalid token, code 403", () => {
+    return request(app)
+      .post("/api/add-intake")
+      .set("Authorization", "Bearer invalid Token")
+      .expect(403)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("Expired or invalid token");
+      });
+  });
+  it("returns an error message when expired token, code 403", () => {
+    const expiredToken = jwt.sign(
+      { userId: "aa345ccd778fbde485ffaeda" },
+      process.env.TOKEN,
+      { expiresIn: -1 }
+    );
+      return request(app)
+        .post("/api/add-intake")
+        .set("Authorization", `Bearer ${expiredToken}`)
+        .expect(403)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("Expired or invalid token");
+        });
+  });
+})
+

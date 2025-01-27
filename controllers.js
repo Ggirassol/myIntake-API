@@ -1,5 +1,4 @@
-// const cookieParser = require('cookie-parser')
-const { selectIntakeByDate, createUser, logUser, generateNewToken } = require('./models.js');
+const { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake } = require('./models.js');
 
 function getIntakeByDate(req, res, next) {
     const userId = req.params.userId;
@@ -38,5 +37,13 @@ function createNewToken(req, res, next) {
     .catch((err) => next(err));
 }
 
+function addIntake(req, res, next) {
+    const intake = req.body;
+    insertIntake(intake)
+    .then((result) => {
+        res.status(201).send({ result })
+    })
+    .catch((err) => next(err));
+}
 
-module.exports = { getIntakeByDate, addUser, loginUser, createNewToken }
+module.exports = { getIntakeByDate, addUser, loginUser, createNewToken, addIntake }
