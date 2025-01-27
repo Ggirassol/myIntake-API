@@ -113,4 +113,47 @@ function generateNewToken(refreshToken) {
   });
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken }
+async function insertIntake(newIntake) {
+    if (!newIntake.userId || ! newIntake.date || !newIntake.kcal || !newIntake.protein || !newIntake.carbs) {
+        return Promise.reject({ status: 400, msg: "Missing required fields"})
+    }
+    try {
+      await connectToDatabase();
+      const db = client.db("myIntake");
+      const intakes = db.collection("intakes");
+
+      const today = new Date().toISOString().slice(0, 10);
+
+      const foundIntake = await intakes.findOne({
+        userId: newIntake.userId,
+        date: newIntake.date,
+      });
+
+      if (foundIntake === null) {
+        const userDoc = {
+            userId: newIntake.userId,
+          date: newIntake.date,
+          kcal: newIntake.kcal,
+          protein: newIntake.protein,
+          carbs: newIntake.carbs,
+        };
+        const insertedIntake = await intakes.insertOne(userDoc);
+        const sucessfullPostedIntake = {
+            sucess: true,
+            intake: {
+                date: newIntake.date,
+                kcal: newIntake.kcal,
+                protein: newIntake.protein,
+                carbs: newIntake.carbs,
+            }
+        }
+        if (insertedIntake) {
+            return sucessfullPostedIntake
+        }
+      }
+    } catch (err) {
+        console.log("ERROR: ", err)
+    }
+}
+
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake }
