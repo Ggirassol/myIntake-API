@@ -79,7 +79,12 @@ async function logUser(email, password) {
           process.env.REFRESH_TOKEN,
           { expiresIn: "30d" }
         );
-        return { token, refreshToken, userId: user._id.toString() };
+        const userWithRefreshToken = await users.updateOne(
+          { email: email },
+          { $set: {
+            refreshToken: refreshToken
+          }})
+        return token;
       }
       return Promise.reject({ status: 401, msg: "Invalid Credentials" });
     }

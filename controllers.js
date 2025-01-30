@@ -22,8 +22,8 @@ function addUser(req, res, next) {
 function loginUser(req, res, next) {
     const { email, password } = req.body;
     logUser(email, password)
-    .then((tokens) => {
-        res.status(200).send({ tokens })
+    .then((token) => {
+        res.status(200).send({ token })
     })
     .catch((err) => next(err));
 }

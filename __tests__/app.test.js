@@ -154,7 +154,8 @@ describe("POST /api/auth", () => {
     .expect(200)
     .then((res) => {
       const result = res.body;
-      expect(result).toHaveProperty("tokens")
+      console.log(result)
+      expect(result).toHaveProperty("token")
     })
   })
   it("returns an error message when passed an invalid email. Code 401", () => {
@@ -330,7 +331,7 @@ describe("POST /api/add-intake", () => {
   });
 })
 
-describe.only("PUT /api/add-more-intake", () => {
+describe("PUT /api/add-more-intake", () => {
   it("returns an object with the key values of success: true and intake: added intaked object, when successfull. Code 201", () => {
     const today = new Date().toISOString().slice(0, 10);
     return request(app)
