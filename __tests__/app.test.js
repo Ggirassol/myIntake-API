@@ -3,6 +3,7 @@ const app = require("../app.js");
 const { seedTestingDatabase } = require("../db/seed.js");
 const { client } = require("../db/dbconnect.js");
 const jwt = require('jsonwebtoken');
+const { selectIntakeByDate } = require("../models.js");
 
 beforeEach(async () => {
   await seedTestingDatabase();
@@ -329,3 +330,79 @@ describe("POST /api/add-intake", () => {
   });
 })
 
+describe.only("PUT /api/add-more-intake", () => {
+  it("returns an object with the key values of success: true and intake: added intaked object, when successfull. Code 201", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    return request(app)
+      .put("/api/add-more-intake")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "aa345ccd778fbde485ffaeda",
+        date: today,
+        kcal: 400,
+        protein: 20,
+        carbs: 50,
+      })
+      .expect(201)
+      .then((res) => {
+        const result = res.body.result;
+        expect(result).toMatchObject({
+          sucess: true,
+          updatedIntake: {
+            date: today,
+            kcal: 3123 + 400,
+            protein: 123 + 20,
+            carbs: 456 + 50,
+          },
+        });
+        const updatedIntake = selectIntakeByDate(
+          "aa345ccd778fbde485ffaeda",
+          today
+        );
+        return updatedIntake;
+      })
+      .then((updatedIntake) => {
+        expect(updatedIntake).toMatchObject({
+          date: updatedIntake.date,
+          kcal: updatedIntake.kcal,
+          protein: updatedIntake.protein,
+          carbs: updatedIntake.carbs,
+        });
+      });
+  });
+  it("returns an error message when no token, code 401", () => {
+    return request(app)
+      .put("/api/add-more-intake")
+      .set("Authorization", "")
+      .expect(401)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("No token");
+      });
+  });
+  it("returns an error message when invalid token, code 403", () => {
+    return request(app)
+      .put("/api/add-more-intake")
+      .set("Authorization", "Bearer invalid Token")
+      .expect(403)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("Expired or invalid token");
+      });
+  });
+  it("returns an error message when expired token, code 403", () => {
+    const expiredToken = jwt.sign(
+      { userId: "aa345ccd778fbde485ffaeda" },
+      process.env.TOKEN,
+      { expiresIn: -1 }
+    );
+      return request(app)
+        .put("/api/add-more-intake")
+        .set("Authorization", `Bearer ${expiredToken}`)
+        .expect(403)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("Expired or invalid token");
+        });
+  });
+});
