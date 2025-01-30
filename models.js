@@ -156,4 +156,46 @@ async function insertIntake(newIntake) {
     }
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake }
+async function editIntake(newIntake) {
+  try {
+    await connectToDatabase();
+    const db = client.db("myIntake");
+    const intakes = db.collection("intakes");
+
+    const todayCurrIntake = await intakes.findOne({
+      userId: newIntake.userId,
+      date: newIntake.date,
+    });
+
+    if (todayCurrIntake !== null) {
+      const editedIntake = await intakes.updateOne(
+        { userId: newIntake.userId, date: newIntake.date },
+        {
+          $set: {
+            kcal: todayCurrIntake.kcal + newIntake.kcal,
+            protein: todayCurrIntake.protein + newIntake.protein,
+            carbs: todayCurrIntake.carbs + newIntake.carbs,
+          },
+        }
+      );
+
+      const sucessfullUpdatedIntake = {
+        sucess: true,
+        updatedIntake: {
+          date: todayCurrIntake.date,
+          kcal: todayCurrIntake.kcal + newIntake.kcal,
+          protein: todayCurrIntake.protein + newIntake.protein,
+          carbs: todayCurrIntake.carbs + newIntake.carbs,
+        },
+      };
+
+      if (editedIntake) {
+        return sucessfullUpdatedIntake;
+      }
+    }
+  } catch {
+    console.log("ERROR: ", err)
+  }
+}
+
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake }

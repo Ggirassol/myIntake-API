@@ -82,6 +82,13 @@ async function seedTestingDatabase() {
         carbs: 278,
       },
       {
+        userId: "aa345ccd778fbde485ffaeda",
+        date: new Date().toISOString().slice(0, 10),
+        kcal: 3123,
+        protein: 123,
+        carbs: 456,
+      },
+      {
         userId: "abc3548cafebcf7586acde8",
         date: "2024-12-25",
         kcal: 2789,

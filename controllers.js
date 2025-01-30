@@ -1,4 +1,4 @@
-const { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake } = require('./models.js');
+const { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake } = require('./models.js');
 
 function getIntakeByDate(req, res, next) {
     const userId = req.params.userId;
@@ -46,4 +46,13 @@ function addIntake(req, res, next) {
     .catch((err) => next(err));
 }
 
-module.exports = { getIntakeByDate, addUser, loginUser, createNewToken, addIntake }
+function updateIntake(req, res, next) {
+    const intake = req.body;
+    editIntake(intake)
+    .then((result) => {
+        res.status(201).send({ result })
+    })
+    .catch((err) => next(err));
+}
+
+module.exports = { getIntakeByDate, addUser, loginUser, createNewToken, addIntake, updateIntake }
