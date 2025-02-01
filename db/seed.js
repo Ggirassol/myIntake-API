@@ -1,6 +1,7 @@
 const { ObjectId } = require("bson");
 const { connectToDatabase, client } = require("./dbconnect");
 const { bcryptPassword } = require("../utils");
+const jwt = require('jsonwebtoken');
 
 async function seedTestingDatabase() {
   try {
@@ -26,6 +27,11 @@ async function seedTestingDatabase() {
         email: "maria@example.com",
         password: hashPasswords[0],
         createdAt: "2025-01-01",
+        refreshToken: jwt.sign(
+          { data: "6778436ee5e8aac81fb73f15" },
+          process.env.REFRESH_TOKEN,
+          { expiresIn: "30d" }
+        ),
       },
       {
         _id: new ObjectId("aa345ccd778fbde485ffaeda"),
@@ -33,6 +39,11 @@ async function seedTestingDatabase() {
         email: "rui@example.com",
         password: hashPasswords[1],
         createdAt: "2024-12-31",
+        refreshToken: jwt.sign(
+          { userId: "aa345ccd778fbde485ffaeda" },
+          process.env.REFRESH_TOKEN,
+          { expiresIn: -1 }
+        ),
       },
       {
         _id: new ObjectId("abc3548cafebcf7586acde80"),

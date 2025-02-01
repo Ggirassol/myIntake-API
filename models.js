@@ -1,6 +1,7 @@
 const { client, connectToDatabase } = require('./db/dbconnect');
 const { bcryptPassword, passwordMatches } = require('./utils');
 const jwt = require('jsonwebtoken');
+const { ObjectId } = require("bson");
 
 async function selectIntakeByDate(userId, date) {
     const regexUserId = /^[a-f0-9]+$/;
@@ -94,28 +95,36 @@ async function logUser(email, password) {
   }
 }
 
-function generateNewToken(refreshToken) {
-  if (!refreshToken) {
-    return Promise.reject({ status: 401, msg: "No refresh token" });
-  }
-  return new Promise((resolve, reject) => {
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, payload) => {
-      if (err) {
-        reject({ status: 403, msg: "Invalid or expired refresh token" });
-      } else {
-        const userId = payload.userId;
-        const newToken = jwt.sign({ data: userId }, process.env.TOKEN, {
-          expiresIn: "15s",
-        });
-        const newRefreshToken = jwt.sign(
-          { data: userId },
-          process.env.REFRESH_TOKEN,
-          { expiresIn: "30d" }
-        );
-        resolve({ token: newToken, refreshToken: newRefreshToken, userId });
-      }
+async function generateNewToken(userId) {
+  try {
+    const db = client.db("myIntake");
+    const users = db.collection("users");
+
+    const user = await users.findOne({
+      _id: ObjectId.createFromHexString(userId),
     });
-  });
+
+    if (!user.refreshToken) {
+      return Promise.reject({ status: 401, msg: "No refresh token" });
+    } else {
+      return new Promise((resolve, reject) => {
+        jwt.verify(user.refreshToken, process.env.REFRESH_TOKEN, (err, payload) => {
+          if (err) {
+            reject({ status: 403, msg: "Invalid or expired refresh token" });
+          } else {
+            const userId = payload.userId;
+            const newToken = jwt.sign({ data: userId }, process.env.TOKEN, {
+              expiresIn: "15s",
+            });
+            resolve({ sucessNewToken: true,
+              token: newToken });
+          }
+        });
+      });
+    }
+  } catch {
+    console.log("ERROR: ", err);
+  }
 }
 
 async function insertIntake(newIntake) {
