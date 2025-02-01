@@ -187,27 +187,23 @@ describe("POST /api/auth", () => {
 })
 
 describe("POST /api/refresh-token", () => {
-  it("returns new generated tokens when passed a valid refresh token", () => {
-    const validRefreshToken = jwt.sign({ userId: "aa345ccd778fbde485ffaeda" }, process.env.REFRESH_TOKEN, { expiresIn: 60 * 15 });
+  it("returns an object with key values success:true and token: new generated token, when passed a valid refresh token", () => {
     return request(app)
     .post("/api/refresh-token")
-    .send({
-      token: validRefreshToken
-    })
+    .send({userId: "6778436ee5e8aac81fb73f15"})
     .expect(200)
     .then((res) => {
-      const result = res.body.tokens;
+      const result = res.body.newToken;
       expect(result).toHaveProperty("token")
-      expect(result).toHaveProperty("refreshToken")
+      expect(result).toMatchObject({
+        sucessNewToken: true
+      })
     })
   })
   it("returns error when passed an invalid refresh token", () => {
-    const invalidRefreshToken = "invalid"
       return request(app)
         .post("/api/refresh-token")
-        .send({
-          token: invalidRefreshToken,
-        })
+        .send({userId: "aa345ccd778fbde485ffaeda"})
         .expect(403)
         .then((res) => {
           const error = res.body;
@@ -215,25 +211,19 @@ describe("POST /api/refresh-token", () => {
         });
   })
   it("returns error when passed an expired refresh token", () => {
-    const expiredRefreshToken = jwt.sign(
-      { userId: "aa345ccd778fbde485ffaeda" },
-      process.env.REFRESH_TOKEN,
-      { expiresIn: -1 }
-    );
       return request(app)
         .post("/api/refresh-token")
-        .send({
-          token: expiredRefreshToken,
-        })
+        .send({userId: "aa345ccd778fbde485ffaeda"})
         .expect(403)
         .then((res) => {
           const error = res.body;
           expect(error.msg).toBe("Invalid or expired refresh token");
         });
   });
-  it("returns error when passed no refresh token", () => {
+  it("returns error when passed a user with no refresh token", () => {
       return request(app)
         .post("/api/refresh-token")
+        .send({userId: "abc3548cafebcf7586acde80"})
         .expect(401)
         .then((res) => {
           const error = res.body;
@@ -249,7 +239,7 @@ describe("POST /api/add-intake", () => {
     .post("/api/add-intake")
     .set("Authorization", `Bearer ${validToken}`)
     .send({
-      userId: "aa345ccd778fbde485ffaeda",
+      userId: "6778436ee5e8aac81fb73f15",
       date: today,
       kcal: 5000,
       protein: 100,
@@ -258,6 +248,7 @@ describe("POST /api/add-intake", () => {
     .expect(201)
     .then((res) => {
       const result = res.body.result
+      console.log(result)
       expect(result).toMatchObject({
         sucess: true,
         intake: {

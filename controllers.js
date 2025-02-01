@@ -29,10 +29,10 @@ function loginUser(req, res, next) {
 }
 
 function createNewToken(req, res, next) {
-    const refreshToken = req.body.token;
-    generateNewToken(refreshToken)
-    .then((tokens) => {
-        res.status(200).send({ tokens })
+    const userId = req.body.userId
+    generateNewToken(userId)
+    .then((newToken) => {
+        res.status(200).send({ newToken })
     })
     .catch((err) => next(err));
 }
