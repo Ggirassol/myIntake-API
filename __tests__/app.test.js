@@ -398,3 +398,38 @@ describe("PUT /api/add-more-intake", () => {
         });
   });
 });
+
+describe.only("PUT /api/logout", () => {
+  it("returns an object with key value logoutSuccess: true", () => {
+    return request(app)
+    .put("/api/logout")
+    .send({ userId: "6778436ee5e8aac81fb73f15"})
+    .expect(200)
+    .then((res) => {
+      const result = res.body
+      expect(result).toMatchObject({ logoutSuccess: true })
+    })
+  })
+  it("returns an error when user has no refresh token", () => {
+    return request(app)
+    .put("/api/logout")
+    .send({ userId: "abc3548cafebcf7586acde80"})
+    .expect(401)
+    .then((res) => {
+      const error = res.body
+      console.log(error)
+      expect(error.msg).toBe("No refresh token found. User not logged in.")
+    })
+  })
+  it("returns an error when no userId", () => {
+    return request(app)
+    .put("/api/logout")
+    .send({ userId: "" })
+    .expect(400)
+    .then((res) => {
+      const error = res.body
+      console.log(error)
+      expect(error.msg).toBe("No user logged in")
+    })
+  })
+})

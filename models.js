@@ -212,4 +212,32 @@ async function editIntake(newIntake) {
   }
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake }
+async function removeUserRefreshToken (userId) {
+  try {
+    await connectToDatabase();
+    const db = client.db("myIntake");
+    const users = db.collection("users");
+
+    const currUser = await users.findOne(
+      { _id: ObjectId.createFromHexString(userId)}
+    );
+    console.log(currUser);
+
+    if (currUser.refreshToken) {
+      const userWithoutRefreshToken = await users.updateOne(
+        { _id: ObjectId.createFromHexString(userId) },
+        { $unset: {
+            refreshToken: "",
+          }
+        }
+      );
+      return { logoutSuccess: true }
+    } else {
+        return Promise.reject({ status: 401, msg: "No refresh token found. User not logged in." })
+    }
+  } catch (err) {
+    console.log("ERROR: ", err)
+  }
+}
+
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake, removeUserRefreshToken }
