@@ -5,7 +5,7 @@ const { getIntakeByDate, addUser, loginUser, createNewToken, addIntake, updateIn
 const { handleCustomErrors } = require("./handleCustomErrors.js");
 const { authenticateToken } = require("./middleware.js");
 
-app.get("/api/:userId/:date", authenticateToken, getIntakeByDate);
+app.get("/api/:date", authenticateToken, getIntakeByDate);
 app.post("/api/register", addUser)
 app.post("/api/auth", loginUser)
 app.post("/api/refresh-token", createNewToken);

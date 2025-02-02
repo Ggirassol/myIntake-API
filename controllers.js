@@ -1,7 +1,7 @@
 const { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake, removeUserRefreshToken } = require('./models.js');
 
 function getIntakeByDate(req, res, next) {
-    const userId = req.params.userId;
+    const userId = req.body.userId;
     const date = req.params.date;
     selectIntakeByDate(userId, date)
     .then((intake) => {

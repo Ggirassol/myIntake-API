@@ -15,11 +15,12 @@ afterAll(async () => {
 
 const validToken = jwt.sign({ userId: "aa345ccd778fbde485ffaeda" }, process.env.TOKEN, { expiresIn: 60 * 15 });
 
-describe("GET /api/:userId/:date", () => {
+describe.only("GET /api/:date", () => {
     it("returns an object with only date, kcal, protein and carb properties when passed valid userId and valid date. code 200", () => {
       return request(app)
-        .get("/api/aa345ccd778fbde485ffaeda/2024-12-31")
+        .get("/api/2024-12-31")
         .set("Authorization", `Bearer ${validToken}`)
+        .send({ userId: "aa345ccd778fbde485ffaeda"})
         .expect(200)
         .then((res) => {
           const intake = res.body.intake;
@@ -33,8 +34,9 @@ describe("GET /api/:userId/:date", () => {
     });
     it("returns an error message when passed an userId with invalid format. code 400", () => {
       return request(app)
-      .get("/api/56765243fglkkhgf/2024-12-31")
+      .get("/api/2024-12-31")
       .set("Authorization", `Bearer ${validToken}`)
+      .send({ userId: "56765243fglkkhgf"})
       .expect(400)
       .then((res) => {
         const error = res.body;
@@ -43,8 +45,9 @@ describe("GET /api/:userId/:date", () => {
     })
     it("returns an error message when passed a date with invalid format. code 400", () => {
       return request(app)
-      .get("/api/aa345ccd778fbde485ffaeda/31-12-2024")
+      .get("/api/31-12-2024")
       .set("Authorization", `Bearer ${validToken}`)
+      .send({ userId: "aa345ccd778fbde485ffaeda"})
       .expect(400)
       .then((res) => {
         const error = res.body;
@@ -53,8 +56,9 @@ describe("GET /api/:userId/:date", () => {
     })
     it("returns an error message when passed an non existent userId. code 404", () => {
       return request(app)
-      .get("/api/34aecb8796aaeeff118877cc/2024-12-31")
+      .get("/api/2024-12-31")
       .set("Authorization", `Bearer ${validToken}`)
+      .send({ userId: "34aecb8796aaeeff118877cc"})
       .expect(404)
       .then((res) => {
         const error = res.body;
@@ -63,8 +67,9 @@ describe("GET /api/:userId/:date", () => {
     })
     it("returns an error message when passed a valid userId but not existing date. code 404", () => {
       return request(app)
-      .get("/api/aa345ccd778fbde485ffaeda/2024-10-02")
+      .get("/api/2024-10-02")
       .set("Authorization", `Bearer ${validToken}`)
+      .send({ userId: "aa345ccd778fbde485ffaeda"})
       .expect(404)
       .then((res) => {
         const error = res.body;
@@ -73,8 +78,9 @@ describe("GET /api/:userId/:date", () => {
     })
   it("returns an error message when no token, code 401", () => {
     return request(app)
-      .get("/api/aa345ccd778fbde485ffaeda/2024-10-02")
+      .get("/api/2024-10-02")
       .set("Authorization", "")
+      .send({ userId: "aa345ccd778fbde485ffaeda"})
       .expect(401)
       .then((res) => {
         const error = res.body;
@@ -83,8 +89,9 @@ describe("GET /api/:userId/:date", () => {
   });
   it("returns an error message when invalid token, code 403", () => {
     return request(app)
-      .get("/api/aa345ccd778fbde485ffaeda/2024-10-02")
+      .get("/api/2024-10-02")
       .set("Authorization", "Bearer invalid Token")
+      .send({ userId: "aa345ccd778fbde485ffaeda"})
       .expect(403)
       .then((res) => {
         const error = res.body;
@@ -99,8 +106,9 @@ describe("GET /api/:userId/:date", () => {
     );
     setTimeout(() => {
       return request(app)
-        .get("/api/aa345ccd778fbde485ffaeda/2024-10-02")
+        .get("/api/2024-10-02")
         .set("Authorization", `Bearer ${expiredToken}`)
+        .send({ userId: "aa345ccd778fbde485ffaeda"})
         .expect(403)
         .then((res) => {
           const error = res.body;
