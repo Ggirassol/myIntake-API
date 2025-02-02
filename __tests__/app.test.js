@@ -292,7 +292,7 @@ describe("POST /api/add-intake", () => {
       })
     )
   })
-  it("returns an error message when there is already record of intake for todays' date. code 400", () => {
+  it("returns an error message when there is already record of intake for todays' date. code 409", () => {
     const today = new Date().toISOString().slice(0, 10);
     return request(app)
     .post("/api/add-intake")
