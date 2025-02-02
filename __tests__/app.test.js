@@ -4,6 +4,7 @@ const { seedTestingDatabase } = require("../db/seed.js");
 const { client } = require("../db/dbconnect.js");
 const jwt = require('jsonwebtoken');
 const { selectIntakeByDate } = require("../models.js");
+const endpoints = require("../endpoints.json");
 
 beforeEach(async () => {
   await seedTestingDatabase();
@@ -15,7 +16,7 @@ afterAll(async () => {
 
 const validToken = jwt.sign({ userId: "aa345ccd778fbde485ffaeda" }, process.env.TOKEN, { expiresIn: 60 * 15 });
 
-describe.only("GET /api/:date", () => {
+describe("GET /api/:date", () => {
     it("returns an object with only date, kcal, protein and carb properties when passed valid userId and valid date. code 200", () => {
       return request(app)
         .get("/api/2024-12-31")
@@ -473,3 +474,17 @@ describe("PUT /api/logout", () => {
     })
   })
 })
+
+
+describe("GET /api/", () => {
+  it("responds with an object matching the endpoints.json file object", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then((res) => {
+        const description = res.body
+        console.log(description)
+        expect(description).toEqual(endpoints);
+      });
+  });
+});

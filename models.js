@@ -2,6 +2,7 @@ const { client, connectToDatabase } = require('./db/dbconnect');
 const { bcryptPassword, passwordMatches } = require('./utils');
 const jwt = require('jsonwebtoken');
 const { ObjectId } = require("bson");
+const endpoints = require("./endpoints.json");
 
 async function selectIntakeByDate(userId, date) {
     const regexUserId = /^[a-f0-9]+$/;
@@ -244,4 +245,8 @@ async function removeUserRefreshToken (userId) {
   }
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake, removeUserRefreshToken }
+function selectDescription() {
+  return Promise.resolve(endpoints);
+}
+
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake, removeUserRefreshToken, selectDescription }

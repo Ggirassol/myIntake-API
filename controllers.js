@@ -1,4 +1,4 @@
-const { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake, removeUserRefreshToken } = require('./models.js');
+const { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake, removeUserRefreshToken, selectDescription } = require('./models.js');
 
 function getIntakeByDate(req, res, next) {
     const userId = req.body.userId;
@@ -67,4 +67,12 @@ function logoutUser(req, res, next) {
     .catch((err) => next(err));
 }
 
-module.exports = { getIntakeByDate, addUser, loginUser, createNewToken, addIntake, updateIntake, logoutUser }
+function getEndpointsDescription(req, res, next) {
+    selectDescription()
+    .then((endpointsDescription) => {
+      res.status(200).send(endpointsDescription);
+    })
+    .catch((err) => next(err));
+}
+
+module.exports = { getIntakeByDate, addUser, loginUser, createNewToken, addIntake, updateIntake, logoutUser, getEndpointsDescription }
