@@ -25,7 +25,6 @@ async function selectIntakeByDate(userId, date) {
             if (!intake) {
                 return Promise.reject({ status: 404, msg: "No intake found for the given userID and date"})
             }
-            console.log(intake)
             return intake
         }
         catch (err) {
@@ -112,7 +111,7 @@ async function generateNewToken(userId) {
           if (err) {
             reject({ status: 403, msg: "Invalid or expired refresh token" });
           } else {
-            const userId = payload.userId;
+            const userId = payload.data;
             const newToken = jwt.sign({ data: userId }, process.env.TOKEN, {
               expiresIn: "15s",
             });
@@ -122,7 +121,7 @@ async function generateNewToken(userId) {
         });
       });
     }
-  } catch {
+  } catch (err) {
     console.log("ERROR: ", err);
   }
 }
@@ -142,6 +141,10 @@ async function insertIntake(newIntake) {
         userId: newIntake.userId,
         date: newIntake.date,
       });
+
+      if (foundIntake !== null) {
+        return Promise.reject({ status: 409, msg: "Bad request. Intake already exists for this date."})
+      }
 
       if (foundIntake === null) {
         const userDoc = {
@@ -181,34 +184,36 @@ async function editIntake(newIntake) {
       date: newIntake.date,
     });
 
+    if (todayCurrIntake === null) {
+      return Promise.reject({ status: 404, msg: "No intake found for the given user and date" })
+    }
+
     if (todayCurrIntake !== null) {
       const editedIntake = await intakes.updateOne(
         { userId: newIntake.userId, date: newIntake.date },
         {
-          $set: {
-            kcal: todayCurrIntake.kcal + newIntake.kcal,
-            protein: todayCurrIntake.protein + newIntake.protein,
-            carbs: todayCurrIntake.carbs + newIntake.carbs,
+          $inc: {
+            kcal: newIntake.kcal,
+            protein: newIntake.protein,
+            carbs: newIntake.carbs,
           },
         }
       );
 
-      const sucessfullUpdatedIntake = {
-        sucess: true,
-        updatedIntake: {
-          date: todayCurrIntake.date,
-          kcal: todayCurrIntake.kcal + newIntake.kcal,
-          protein: todayCurrIntake.protein + newIntake.protein,
-          carbs: todayCurrIntake.carbs + newIntake.carbs,
-        },
-      };
-
-      if (editedIntake) {
-        return sucessfullUpdatedIntake;
+      if (editedIntake.modifiedCount === 1) {
+        return {
+          sucess: true,
+          updatedIntake: {
+            date: todayCurrIntake.date,
+            kcal: todayCurrIntake.kcal + newIntake.kcal,
+            protein: todayCurrIntake.protein + newIntake.protein,
+            carbs: todayCurrIntake.carbs + newIntake.carbs,
+          },
+        };
       }
     }
-  } catch {
-    console.log("ERROR: ", err)
+  } catch (err) {
+    console.log("ERROR: ", err);
   }
 }
 
@@ -221,7 +226,6 @@ async function removeUserRefreshToken (userId) {
     const currUser = await users.findOne(
       { _id: ObjectId.createFromHexString(userId)}
     );
-    console.log(currUser);
 
     if (currUser.refreshToken) {
       const userWithoutRefreshToken = await users.updateOne(
