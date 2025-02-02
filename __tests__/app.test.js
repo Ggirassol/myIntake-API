@@ -154,7 +154,6 @@ describe("POST /api/auth", () => {
     .expect(200)
     .then((res) => {
       const result = res.body;
-      console.log(result)
       expect(result).toHaveProperty("token")
     })
   })
@@ -248,7 +247,6 @@ describe("POST /api/add-intake", () => {
     .expect(201)
     .then((res) => {
       const result = res.body.result
-      console.log(result)
       expect(result).toMatchObject({
         sucess: true,
         intake: {
@@ -284,6 +282,24 @@ describe("POST /api/add-intake", () => {
         });
       })
     )
+  })
+  it("returns an error message when there is already record of intake for todays' date. code 400", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    return request(app)
+    .post("/api/add-intake")
+    .set("Authorization", `Bearer ${validToken}`)
+    .send({
+      userId: "aa345ccd778fbde485ffaeda",
+      date: today,
+      kcal: 1,
+      protein: 1,
+      carbs: 3,
+    })
+    .expect(409)
+    .then((res) => {
+      const error = res.body;
+      expect(error.msg).toBe("Bad request. Intake already exists for this date.")
+    })
   })
   it("returns an error message when no token, code 401", () => {
     return request(app)
@@ -362,6 +378,24 @@ describe("PUT /api/add-more-intake", () => {
         });
       });
   });
+  it("returns an error message when there is no record of intake for today's date. code 404", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    return request(app)
+      .put("/api/add-more-intake")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "6778436ee5e8aac81fb73f15",
+        date: today,
+        kcal: 400,
+        protein: 20,
+        carbs: 50,
+      })
+      .expect(404)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("No intake found for the given user and date")
+      })
+  })
   it("returns an error message when no token, code 401", () => {
     return request(app)
       .put("/api/add-more-intake")
@@ -399,7 +433,7 @@ describe("PUT /api/add-more-intake", () => {
   });
 });
 
-describe.only("PUT /api/logout", () => {
+describe("PUT /api/logout", () => {
   it("returns an object with key value logoutSuccess: true", () => {
     return request(app)
     .put("/api/logout")
@@ -417,7 +451,6 @@ describe.only("PUT /api/logout", () => {
     .expect(401)
     .then((res) => {
       const error = res.body
-      console.log(error)
       expect(error.msg).toBe("No refresh token found. User not logged in.")
     })
   })
@@ -428,7 +461,6 @@ describe.only("PUT /api/logout", () => {
     .expect(400)
     .then((res) => {
       const error = res.body
-      console.log(error)
       expect(error.msg).toBe("No user logged in")
     })
   })
