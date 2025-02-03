@@ -14,6 +14,7 @@ afterAll(async () => {
    await client.close();
 });
 
+const today = new Date().toISOString().slice(0, 10);
 const validToken = jwt.sign({ userId: "aa345ccd778fbde485ffaeda" }, process.env.TOKEN, { expiresIn: 60 * 15 });
 const expiredToken = jwt.sign(
   { userId: "aa345ccd778fbde485ffaeda" },
@@ -244,7 +245,6 @@ describe("POST /api/refresh-token", () => {
 })
 
 describe("POST /api/add-intake", () => {
-  const today = new Date().toISOString().slice(0, 10);
   const validBody =  {
     userId: "6778436ee5e8aac81fb73f15",
     date: today,
@@ -253,7 +253,6 @@ describe("POST /api/add-intake", () => {
     carbs: 300,
   };
   it("returns an object with the key values of success: true and intake: added intaked object. Code 201", () => {
-    const today = new Date().toISOString().slice(0, 10);
     return request(app)
     .post("/api/add-intake")
     .set("Authorization", `Bearer ${validToken}`)
@@ -273,7 +272,6 @@ describe("POST /api/add-intake", () => {
     })
   })
   it("returns an error message when there are any missing fields. Code 400", async () => {
-    const today = new Date().toISOString().slice(0, 10);
 
     const missingUserId = { date: today, kcal: 5000, protein: 100, carbs: 300 };
     const missingDate = { userId: "aa345ccd778fbde485ffaeda", kcal: 5000, protein: 100, carbs: 300 };
@@ -318,7 +316,6 @@ describe("POST /api/add-intake", () => {
 })
 
 describe("PUT /api/add-more-intake", () => {
-  const today = new Date().toISOString().slice(0, 10);
   const validBody = {
     userId: "aa345ccd778fbde485ffaeda",
     date: today,
@@ -359,7 +356,6 @@ describe("PUT /api/add-more-intake", () => {
       });
   });
   it("returns an error message when there is no record of intake for today's date. code 404", () => {
-    const today = new Date().toISOString().slice(0, 10);
     return request(app)
       .put("/api/add-more-intake")
       .set("Authorization", `Bearer ${validToken}`)
