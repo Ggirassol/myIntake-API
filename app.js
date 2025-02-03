@@ -11,7 +11,7 @@ app.post("/api/auth", loginUser)
 app.post("/api/refresh-token", createNewToken);
 app.post("/api/add-intake", authenticateToken, addIntake)
 app.put("/api/add-more-intake", authenticateToken, updateIntake)
-app.put("/api/logout", logoutUser)
+app.put("/api/logout", authenticateToken,logoutUser)
 app.get("/api/", getEndpointsDescription)
 app.use(handleCustomErrors)
 
