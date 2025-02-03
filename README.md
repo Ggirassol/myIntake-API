@@ -64,7 +64,7 @@ Also remember to get hold of the connection string as for production instead on 
 ```
 npm install
 ```
-4. Create env.testing file:
+4. Create .env.testing file:
 ```
 CONNECT_STRING=your_connection_string_for_testing
 PORT=3000
@@ -75,7 +75,7 @@ tip: to generate secrets run in node:
 ```
 require("crypto").randomBytes(64).toString("hex")
 ```
-5. Create env.production file:
+5. Create .env.production file:
 ```
 CONNECT_STRING=your_connection_string_for_production
 PORT=3000
