@@ -42,7 +42,7 @@ Please follow the following steps:
 9. Click "Create Database User" and then click "Choose connection method"
 10. Select first option "Drivers"
 11. Now on number 3, if not on, turn on "Show Password" and copy the string provided under
-12. Get hold of this, remember this is your string for the testing db, as this will be used later on;
+12. Get hold of this connection string, remember this is your string for the testing project, as this will be used later on;
 13. Click "Done"
 14. On your current cluster "Add data"
 15. Select "Start" where it says "Create Database on Atlas"
@@ -52,7 +52,9 @@ Please follow the following steps:
 19. Now that the database is created, hover on "myIntake" and click the "+" button
 20. Enter "Collection name" as this: intakes and click "Create"
 
-21. Repeat all 20 steps to create a project for production now, remembering that instead of testing, everything will be for production instead. So make sure you name things accordingly.
+21. Repeat all 20 steps to create a project for production now.
+This time, on step 3, the project will be named as "myIntakeProduction" instead.
+Also remember to get hold of the connection string as for production instead on step 12.
 
 # Next
 
