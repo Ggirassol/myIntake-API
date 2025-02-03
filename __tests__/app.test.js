@@ -15,6 +15,48 @@ afterAll(async () => {
 });
 
 const validToken = jwt.sign({ userId: "aa345ccd778fbde485ffaeda" }, process.env.TOKEN, { expiresIn: 60 * 15 });
+const expiredToken = jwt.sign(
+  { userId: "aa345ccd778fbde485ffaeda" },
+  process.env.TOKEN,
+  { expiresIn: -1 }
+);
+
+function testForTokens(method, endpoint, body) {
+  it("returns an error message when no token, code 401", () => {
+    return request(app)
+      [method](endpoint)
+      .set("Authorization", "")
+      .send(body)
+      .expect(401)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("No token");
+      });
+  });
+  it("returns an error message when invalid token, code 403", () => {
+    return request(app)
+      [method](endpoint)
+      .set("Authorization", "Bearer invalid Token")
+      .send(body)
+      .expect(403)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("Expired or invalid token");
+      });
+  });
+  it("returns an error message when expired token, code 403", () => {
+      return request(app)
+      [method](endpoint)
+        .set("Authorization", `Bearer ${expiredToken}`)
+        .send(body)
+        .expect(403)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("Expired or invalid token");
+        });
+  });
+}
+
 
 describe("GET /api/:date", () => {
     it("returns an object with only date, kcal, protein and carb properties when passed valid userId and valid date. code 200", () => {
@@ -77,46 +119,7 @@ describe("GET /api/:date", () => {
         expect(error.msg).toBe("No intake found for the given userID and date")
       })
     })
-  it("returns an error message when no token, code 401", () => {
-    return request(app)
-      .get("/api/2024-10-02")
-      .set("Authorization", "")
-      .send({ userId: "aa345ccd778fbde485ffaeda"})
-      .expect(401)
-      .then((res) => {
-        const error = res.body;
-        expect(error.msg).toBe("No token");
-      });
-  });
-  it("returns an error message when invalid token, code 403", () => {
-    return request(app)
-      .get("/api/2024-10-02")
-      .set("Authorization", "Bearer invalid Token")
-      .send({ userId: "aa345ccd778fbde485ffaeda"})
-      .expect(403)
-      .then((res) => {
-        const error = res.body;
-        expect(error.msg).toBe("Expired or invalid token");
-      });
-  });
-  it("returns an error message when expired token, code 403", () => {
-    const expiredToken = jwt.sign(
-      { userId: "aa345ccd778fbde485ffaeda" },
-      process.env.TOKEN,
-      { expiresIn: 1 }
-    );
-    setTimeout(() => {
-      return request(app)
-        .get("/api/2024-10-02")
-        .set("Authorization", `Bearer ${expiredToken}`)
-        .send({ userId: "aa345ccd778fbde485ffaeda"})
-        .expect(403)
-        .then((res) => {
-          const error = res.body;
-          expect(error.msg).toBe("Expired or invalid token");
-        });
-    }, 2000);
-  });
+  testForTokens("get", "/api/2024-10-02", {userId: "aa345ccd778fbde485ffaeda"})
 });
 
 describe("POST /api/register", () => {
@@ -241,18 +244,20 @@ describe("POST /api/refresh-token", () => {
 })
 
 describe("POST /api/add-intake", () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const validBody =  {
+    userId: "6778436ee5e8aac81fb73f15",
+    date: today,
+    kcal: 5000,
+    protein: 100,
+    carbs: 300,
+  };
   it("returns an object with the key values of success: true and intake: added intaked object. Code 201", () => {
     const today = new Date().toISOString().slice(0, 10);
     return request(app)
     .post("/api/add-intake")
     .set("Authorization", `Bearer ${validToken}`)
-    .send({
-      userId: "6778436ee5e8aac81fb73f15",
-      date: today,
-      kcal: 5000,
-      protein: 100,
-      carbs: 300,
-    })
+    .send(validBody)
     .expect(201)
     .then((res) => {
       const result = res.body.result
@@ -293,7 +298,6 @@ describe("POST /api/add-intake", () => {
     )
   })
   it("returns an error message when there is already record of intake for todays' date. code 409", () => {
-    const today = new Date().toISOString().slice(0, 10);
     return request(app)
     .post("/api/add-intake")
     .set("Authorization", `Bearer ${validToken}`)
@@ -310,56 +314,23 @@ describe("POST /api/add-intake", () => {
       expect(error.msg).toBe("Bad request. Intake already exists for this date.")
     })
   })
-  it("returns an error message when no token, code 401", () => {
-    return request(app)
-      .post("/api/add-intake")
-      .set("Authorization", "")
-      .expect(401)
-      .then((res) => {
-        const error = res.body;
-        expect(error.msg).toBe("No token");
-      });
-  });
-  it("returns an error message when invalid token, code 403", () => {
-    return request(app)
-      .post("/api/add-intake")
-      .set("Authorization", "Bearer invalid Token")
-      .expect(403)
-      .then((res) => {
-        const error = res.body;
-        expect(error.msg).toBe("Expired or invalid token");
-      });
-  });
-  it("returns an error message when expired token, code 403", () => {
-    const expiredToken = jwt.sign(
-      { userId: "aa345ccd778fbde485ffaeda" },
-      process.env.TOKEN,
-      { expiresIn: -1 }
-    );
-      return request(app)
-        .post("/api/add-intake")
-        .set("Authorization", `Bearer ${expiredToken}`)
-        .expect(403)
-        .then((res) => {
-          const error = res.body;
-          expect(error.msg).toBe("Expired or invalid token");
-        });
-  });
+  testForTokens("post", "/api/add-intake", validBody)
 })
 
 describe("PUT /api/add-more-intake", () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const validBody = {
+    userId: "aa345ccd778fbde485ffaeda",
+    date: today,
+    kcal: 400,
+    protein: 20,
+    carbs: 50,
+  };
   it("returns an object with the key values of success: true and intake: added intaked object, when successfull. Code 201", () => {
-    const today = new Date().toISOString().slice(0, 10);
     return request(app)
       .put("/api/add-more-intake")
       .set("Authorization", `Bearer ${validToken}`)
-      .send({
-        userId: "aa345ccd778fbde485ffaeda",
-        date: today,
-        kcal: 400,
-        protein: 20,
-        carbs: 50,
-      })
+      .send(validBody)
       .expect(201)
       .then((res) => {
         const result = res.body.result;
@@ -405,41 +376,7 @@ describe("PUT /api/add-more-intake", () => {
         expect(error.msg).toBe("No intake found for the given user and date")
       })
   })
-  it("returns an error message when no token, code 401", () => {
-    return request(app)
-      .put("/api/add-more-intake")
-      .set("Authorization", "")
-      .expect(401)
-      .then((res) => {
-        const error = res.body;
-        expect(error.msg).toBe("No token");
-      });
-  });
-  it("returns an error message when invalid token, code 403", () => {
-    return request(app)
-      .put("/api/add-more-intake")
-      .set("Authorization", "Bearer invalid Token")
-      .expect(403)
-      .then((res) => {
-        const error = res.body;
-        expect(error.msg).toBe("Expired or invalid token");
-      });
-  });
-  it("returns an error message when expired token, code 403", () => {
-    const expiredToken = jwt.sign(
-      { userId: "aa345ccd778fbde485ffaeda" },
-      process.env.TOKEN,
-      { expiresIn: -1 }
-    );
-      return request(app)
-        .put("/api/add-more-intake")
-        .set("Authorization", `Bearer ${expiredToken}`)
-        .expect(403)
-        .then((res) => {
-          const error = res.body;
-          expect(error.msg).toBe("Expired or invalid token");
-        });
-  });
+  testForTokens("put", "/api/add-more-intake", validBody)
 });
 
 describe("PUT /api/logout", () => {
@@ -483,7 +420,6 @@ describe("GET /api/", () => {
       .expect(200)
       .then((res) => {
         const description = res.body
-        console.log(description)
         expect(description).toEqual(endpoints);
       });
   });
