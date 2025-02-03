@@ -379,6 +379,7 @@ describe("PUT /api/logout", () => {
   it("returns an object with key value logoutSuccess: true", () => {
     return request(app)
     .put("/api/logout")
+    .set("Authorization", `Bearer ${validToken}`)
     .send({ userId: "6778436ee5e8aac81fb73f15"})
     .expect(200)
     .then((res) => {
@@ -389,6 +390,7 @@ describe("PUT /api/logout", () => {
   it("returns an error when user has no refresh token", () => {
     return request(app)
     .put("/api/logout")
+    .set("Authorization", `Bearer ${validToken}`)
     .send({ userId: "abc3548cafebcf7586acde80"})
     .expect(401)
     .then((res) => {
@@ -399,13 +401,15 @@ describe("PUT /api/logout", () => {
   it("returns an error when no userId", () => {
     return request(app)
     .put("/api/logout")
+    .set("Authorization", `Bearer ${validToken}`)
     .send({ userId: "" })
     .expect(400)
     .then((res) => {
       const error = res.body
-      expect(error.msg).toBe("No user logged in")
+      expect(error.msg).toBe("No userId provided")
     })
   })
+  testForTokens("put", "/api/logout", { userId: "6778436ee5e8aac81fb73f15"})
 })
 
 

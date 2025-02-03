@@ -58,7 +58,7 @@ function updateIntake(req, res, next) {
 function logoutUser(req, res, next) {
     const userId = req.body.userId
     if (!userId) {
-        res.status(400).send({ msg: "No user logged in"})
+        res.status(400).send({ msg: "No userId provided"})
     }
     removeUserRefreshToken(userId)
     .then((result) => {
