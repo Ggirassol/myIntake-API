@@ -189,6 +189,7 @@ async function insertIntake(newIntake) {
         return {
           sucess: true,
           date: foundIntake.date,
+          msg: "Intake added and CurrIntake updated",
           currIntake: {
             kcal: foundIntake.currIntake.kcal + newIntake.kcal,
             protein: foundIntake.currIntake.protein + newIntake.protein,
