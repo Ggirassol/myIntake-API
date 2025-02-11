@@ -67,7 +67,7 @@ describe("GET /api/:date", () => {
         .send({ userId: "aa345ccd778fbde485ffaeda"})
         .expect(200)
         .then((res) => {
-          const intake = res.body.intake;
+          const intake = res.body;
           expect(intake).toMatchObject({
             date: "2024-12-31",
             currIntake: {
@@ -141,7 +141,7 @@ describe("POST /api/register", () => {
       })
       .expect(201)
       .then((res) => {
-        const result = res.body.result;
+        const result = res.body;
         expect(result).toMatchObject({
           sucess: true,
         });
@@ -212,7 +212,7 @@ describe("POST /api/refresh-token", () => {
     .send({userId: "6778436ee5e8aac81fb73f15"})
     .expect(200)
     .then((res) => {
-      const result = res.body.newToken;
+      const result = res.body;
       expect(result).toHaveProperty("token")
       expect(result).toMatchObject({
         sucessNewToken: true

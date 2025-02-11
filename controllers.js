@@ -5,7 +5,7 @@ function getIntakeByDate(req, res, next) {
     const date = req.params.date;
     selectIntakeByDate(userId, date)
     .then((intake) => {
-        res.status(200).send({ intake })
+        res.status(200).send(intake)
     })
     .catch((err) => next(err));
 }
@@ -14,7 +14,7 @@ function addUser(req, res, next) {
     const { username, email, password } = req.body;
     createUser(username, email, password)
     .then((result) => {
-        res.status(201).send({ result })
+        res.status(201).send( result )
     })
     .catch((err) => next(err));
 }
@@ -32,7 +32,7 @@ function createNewToken(req, res, next) {
     const userId = req.body.userId
     generateNewToken(userId)
     .then((newToken) => {
-        res.status(200).send({ newToken })
+        res.status(200).send( newToken )
     })
     .catch((err) => next(err));
 }
