@@ -136,16 +136,10 @@ async function insertIntake(newIntake) {
       const db = client.db("myIntake");
       const intakes = db.collection("intakes");
 
-      const today = new Date().toISOString().slice(0, 10);
-
       const foundIntake = await intakes.findOne({
         userId: newIntake.userId,
         date: newIntake.date,
       });
-
-      if (foundIntake !== null) {
-        return Promise.reject({ status: 409, msg: "Bad request. Intake already exists for this date."})
-      }
 
       if (foundIntake === null) {
         const userDoc = {
@@ -156,53 +150,25 @@ async function insertIntake(newIntake) {
             protein: newIntake.protein,
             carbs: newIntake.carbs
           },
-          intakes: {
+          intakes: [{
             kcal: newIntake.kcal,
             protein: newIntake.protein,
             carbs: newIntake.carbs
-          }
+          }]
         };
         const insertedIntake = await intakes.insertOne(userDoc);
         const sucessfullPostedIntake = {
             sucess: true,
             date: newIntake.date,
-            currIntake: {
-              kcal: newIntake.kcal,
-              protein: newIntake.protein,
-              carbs: newIntake.carbs
-            },
-            intakes: {
-              kcal: newIntake.kcal,
-              protein: newIntake.protein,
-              carbs: newIntake.carbs,
-            }
+            msg: 'Intake added',
+            currIntake: userDoc.currIntake,
+            intakes: userDoc.intakes
         }
         if (insertedIntake) {
             return sucessfullPostedIntake
         }
-      }
-    } catch (err) {
-        console.log("ERROR: ", err)
-    }
-}
-
-async function editIntake(newIntake) {
-  try {
-    await connectToDatabase();
-    const db = client.db("myIntake");
-    const intakes = db.collection("intakes");
-
-    const todayCurrIntake = await intakes.findOne({
-      userId: newIntake.userId,
-      date: newIntake.date,
-    });
-
-    if (todayCurrIntake === null) {
-      return Promise.reject({ status: 404, msg: "No intake found for the given user and date" })
-    }
-
-    if (todayCurrIntake !== null) {
-      const editedIntake = await intakes.updateOne(
+      } else {
+        const editedIntake = await intakes.updateOne(
         { userId: newIntake.userId, date: newIntake.date },
         {
           $inc: {
@@ -215,22 +181,21 @@ async function editIntake(newIntake) {
               kcal: newIntake.kcal,
               protein: newIntake.protein,
               carbs: newIntake.carbs,
-            },
-          },
+            }
+          }
         }
       );
-
       if (editedIntake.modifiedCount === 1) {
         return {
           sucess: true,
-          date: todayCurrIntake.date,
+          date: foundIntake.date,
           currIntake: {
-            kcal: todayCurrIntake.currIntake.kcal + newIntake.kcal,
-            protein: todayCurrIntake.currIntake.protein + newIntake.protein,
-            carbs: todayCurrIntake.currIntake.carbs + newIntake.carbs,
+            kcal: foundIntake.currIntake.kcal + newIntake.kcal,
+            protein: foundIntake.currIntake.protein + newIntake.protein,
+            carbs: foundIntake.currIntake.carbs + newIntake.carbs,
           },
           intakes: [
-            ...todayCurrIntake.intakes,
+            ...foundIntake.intakes,
             {
               kcal: newIntake.kcal,
               protein: newIntake.protein,
@@ -239,10 +204,10 @@ async function editIntake(newIntake) {
           ],
         };
       }
+      }
+    } catch (err) {
+        console.log("ERROR: ", err)
     }
-  } catch (err) {
-    console.log("ERROR: ", err);
-  }
 }
 
 async function removeUserRefreshToken (userId) {
@@ -276,4 +241,4 @@ function selectDescription() {
   return Promise.resolve(endpoints);
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, editIntake, removeUserRefreshToken, selectDescription }
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription }

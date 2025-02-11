@@ -259,29 +259,47 @@ describe("POST /api/add-intake", () => {
     protein: 100,
     carbs: 300,
   };
-  it("returns an object with the key values of success: true and intake: added intaked object. Code 201", () => {
+  it("returns an object reflecting the successfull operation, date, currIntake and intakes array when there is no record yet of intake for the given date. Code 201", () => {
     return request(app)
-    .post("/api/add-intake")
-    .set("Authorization", `Bearer ${validToken}`)
-    .send(validBody)
-    .expect(201)
-    .then((res) => {
-      const result = res.body.result
-      expect(result).toMatchObject({
-        sucess: true,
-        date: today,
-        currIntake: {
-          kcal: 5000,
-          protein: 100,
-          carbs: 300,
-        },
-        intakes: {
-          kcal: 5000,
-          protein: 100,
-          carbs: 300,
-        }
+      .post("/api/add-intake")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send(validBody)
+      .expect(201)
+      .then((res) => {
+        const result = res.body;
+        expect(result).toMatchObject({
+          sucess: true,
+          date: today,
+          msg: 'Intake added',
+          currIntake: {
+            kcal: 5000,
+            protein: 100,
+            carbs: 300
+          },
+          intakes: [{
+            kcal: 5000,
+            protein: 100,
+            carbs: 300
+          }]
+        });
+        const updatedIntake = selectIntakeByDate("6778436ee5e8aac81fb73f15", today);
+        return updatedIntake;
       })
-    })
+      .then((updatedIntake) => {
+        expect(updatedIntake).toMatchObject({
+          date: today,
+          currIntake: {
+            kcal: 5000,
+            protein: 100,
+            carbs: 300
+          },
+          intakes: [{
+            kcal: 5000,
+            protein: 100,
+            carbs: 300
+          }]
+        });
+      });
   })
   it("returns an error message when there are any missing fields. Code 400", async () => {
 
@@ -307,95 +325,69 @@ describe("POST /api/add-intake", () => {
       })
     )
   })
-  it("returns an error message when there is already record of intake for todays' date. code 409", () => {
+  it("returns an object reflecting the successfull operation, date, currIntake and intakes array when when there is already record of intake for the given date. Code 201", () => {
     return request(app)
-    .post("/api/add-intake")
-    .set("Authorization", `Bearer ${validToken}`)
-    .send({
-      userId: "aa345ccd778fbde485ffaeda",
-      date: today,
-      kcal: 1,
-      protein: 1,
-      carbs: 3,
-    })
-    .expect(409)
-    .then((res) => {
-      const error = res.body;
-      expect(error.msg).toBe("Bad request. Intake already exists for this date.")
-    })
-  })
-  testForTokens("post", "/api/add-intake", validBody)
-})
-
-describe("PUT /api/add-more-intake", () => {
-  const validBody = {
-    userId: "aa345ccd778fbde485ffaeda",
-    date: today,
-    kcal: 400,
-    protein: 20,
-    carbs: 50,
-  };
-  it("returns an object with the key values of success: true and intake: added intaked object, when successfull. Code 201", () => {
-    return request(app)
-      .put("/api/add-more-intake")
+      .post("/api/add-intake")
       .set("Authorization", `Bearer ${validToken}`)
-      .send(validBody)
+      .send({
+        userId: "aa345ccd778fbde485ffaeda",
+        date: today,
+        kcal: 1,
+        protein: 1,
+        carbs: 1,
+      })
       .expect(201)
       .then((res) => {
-        const result = res.body.result;
+        const result = res.body;
         expect(result).toMatchObject({
           sucess: true,
           date: today,
           currIntake: {
-            kcal: 3123 + 400,
-            protein: 123 + 20,
-            carbs: 456 + 50
+            kcal: 3124,
+            protein: 124,
+            carbs: 457
           },
-          intakes: [{
-            kcal: 3123,
-            protein: 123,
-            carbs: 456,
-          },
-          {
-            kcal: 400,
-            protein: 20,
-            carbs: 50,
-          }]
+          intakes: [
+            {
+              kcal: 3123,
+              protein: 123,
+              carbs: 456
+            },
+            {
+              kcal: 1,
+              protein: 1,
+              carbs: 1
+            },
+          ],
         });
-        const updatedIntake = selectIntakeByDate(
-          "aa345ccd778fbde485ffaeda",
-          today
-        );
+        const updatedIntake = selectIntakeByDate("aa345ccd778fbde485ffaeda", today);
         return updatedIntake;
       })
       .then((updatedIntake) => {
-        const currIntake = updatedIntake.currIntake
-        expect(currIntake).toMatchObject({
-          kcal: currIntake.kcal,
-          protein: currIntake.protein,
-          carbs: currIntake.carbs,
+        expect(updatedIntake).toMatchObject({
+          date: today,
+          currIntake: {
+            kcal: 3124,
+            protein: 124,
+            carbs: 457
+          },
+          intakes: [
+            {
+              kcal: 3123,
+              protein: 123,
+              carbs: 456
+            },
+            {
+              kcal: 1,
+              protein: 1,
+              carbs: 1
+            },
+          ],
         });
       });
-  });
-  it("returns an error message when there is no record of intake for today's date. code 404", () => {
-    return request(app)
-      .put("/api/add-more-intake")
-      .set("Authorization", `Bearer ${validToken}`)
-      .send({
-        userId: "6778436ee5e8aac81fb73f15",
-        date: today,
-        kcal: 400,
-        protein: 20,
-        carbs: 50,
-      })
-      .expect(404)
-      .then((res) => {
-        const error = res.body;
-        expect(error.msg).toBe("No intake found for the given user and date")
-      })
   })
-  testForTokens("put", "/api/add-more-intake", validBody)
-});
+  testForTokens("post", "/api/add-intake", validBody)
+})
 
 describe("PUT /api/logout", () => {
   it("returns an object with key value logoutSuccess: true", () => {
