@@ -1,6 +1,7 @@
 {
   "GET /api/:date": {
-    "description": "serves an intake of a given date",
+    "description": "serves an object with date, current total intake and all intake records for the date provided",
+    "parameter": "date in format YYYY-MM-DD",
     "requiredHeaders": {
       "Authorization": {
         "example": "Bearer theNewGeneratedToken.Comes.Here"
@@ -10,12 +11,22 @@
         "userId": "7664566aa5e8aab81fb89b69"
     },
     "exampleResponse": {
-      "intake": {
-        "date": "2025-02-02",
+      "date": "2025-01-31",
+      "currIntake": {
         "kcal": 1001,
         "protein": 101,
         "carbs": 101
-      }
+      },
+      "intakes": [{
+        "kcal": 1000,
+        "protein": 100,
+        "carbs": 100
+      },
+      {
+        "kcal": 1,
+        "protein": 1,
+        "carbs": 1
+      }]
     }
   },
   "POST /api/register": {
@@ -59,7 +70,7 @@
     }
   },
   "POST /api/add-intake": {
-    "description": "serves an object reflecting the successful intake add operation and also the intake input",
+    "description": "serves an object reflecting the successful intake add operation, current total intake and all intake records for the date provided",
     "requiredHeaders": {
       "Authorization": {
         "example": "Bearer theNewGeneratedToken.Comes.Here"
@@ -73,41 +84,19 @@
       "carbs": 100
     },
     "exampleResponse": {
-      "result": {
         "sucess": true,
-        "intake": {
-          "date": "2025-02-02",
+        "date": "2025-02-02",
+        "msg": "Intake added",
+        "currIntake": {
           "kcal": 1000,
           "protein": 100,
           "carbs": 100
-        }
-      }
-    }
-  },
-  "PUT /api/add-more-intake": {
-    "description": "serves an object reflecting the successful intake updating operation and also the updated intake",
-    "requiredHeaders": {
-      "Authorization": {
-        "example": "Bearer theNewGeneratedToken.Comes.Here"
-      }
-    },
-    "exampleRequestBody": {
-      "userId": "7664566aa5e8aab81fb89b69",
-      "date": "2025-02-02",
-      "kcal": 1,
-      "protein": 1,
-      "carbs": 1
-    },
-    "exampleResponse": {
-      "result": {
-        "sucess": true,
-        "updatedIntake": {
-          "date": "2025-02-02",
-          "kcal": 1001,
-          "protein": 101,
-          "carbs": 101
-        }
-      }
+        },
+        "intakes": [{
+          "kcal": 1000,
+          "protein": 100,
+          "carbs": 100
+        }]
     }
   },
   "PUT /api/logout": {
