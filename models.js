@@ -20,7 +20,7 @@ async function selectIntakeByDate(userId, date) {
             const db = client.db("myIntake");
             const intakes = db.collection("intakes");
             const options = {
-                projection: { _id:0, date: 1, kcal: 1, protein: 1, carbs: 1}
+                projection: { _id:0, date: 1, currIntake: 1, intakes: 1}
             }
             const intake = await intakes.findOne({$and : [{userId: userId}, {date: date}]}, options)
             if (!intake) {
@@ -149,20 +149,32 @@ async function insertIntake(newIntake) {
 
       if (foundIntake === null) {
         const userDoc = {
-            userId: newIntake.userId,
+          userId: newIntake.userId,
           date: newIntake.date,
-          kcal: newIntake.kcal,
-          protein: newIntake.protein,
-          carbs: newIntake.carbs,
+          currIntake: {
+            kcal: newIntake.kcal,
+            protein: newIntake.protein,
+            carbs: newIntake.carbs
+          },
+          intakes: {
+            kcal: newIntake.kcal,
+            protein: newIntake.protein,
+            carbs: newIntake.carbs
+          }
         };
         const insertedIntake = await intakes.insertOne(userDoc);
         const sucessfullPostedIntake = {
             sucess: true,
-            intake: {
-                date: newIntake.date,
-                kcal: newIntake.kcal,
-                protein: newIntake.protein,
-                carbs: newIntake.carbs,
+            date: newIntake.date,
+            currIntake: {
+              kcal: newIntake.kcal,
+              protein: newIntake.protein,
+              carbs: newIntake.carbs
+            },
+            intakes: {
+              kcal: newIntake.kcal,
+              protein: newIntake.protein,
+              carbs: newIntake.carbs,
             }
         }
         if (insertedIntake) {
@@ -194,9 +206,16 @@ async function editIntake(newIntake) {
         { userId: newIntake.userId, date: newIntake.date },
         {
           $inc: {
-            kcal: newIntake.kcal,
-            protein: newIntake.protein,
-            carbs: newIntake.carbs,
+            "currIntake.kcal": newIntake.kcal,
+            "currIntake.protein": newIntake.protein,
+            "currIntake.carbs": newIntake.carbs,
+          },
+          $push: {
+            intakes: {
+              kcal: newIntake.kcal,
+              protein: newIntake.protein,
+              carbs: newIntake.carbs,
+            },
           },
         }
       );
@@ -204,12 +223,20 @@ async function editIntake(newIntake) {
       if (editedIntake.modifiedCount === 1) {
         return {
           sucess: true,
-          updatedIntake: {
-            date: todayCurrIntake.date,
-            kcal: todayCurrIntake.kcal + newIntake.kcal,
-            protein: todayCurrIntake.protein + newIntake.protein,
-            carbs: todayCurrIntake.carbs + newIntake.carbs,
+          date: todayCurrIntake.date,
+          currIntake: {
+            kcal: todayCurrIntake.currIntake.kcal + newIntake.kcal,
+            protein: todayCurrIntake.currIntake.protein + newIntake.protein,
+            carbs: todayCurrIntake.currIntake.carbs + newIntake.carbs,
           },
+          intakes: [
+            ...todayCurrIntake.intakes,
+            {
+              kcal: newIntake.kcal,
+              protein: newIntake.protein,
+              carbs: newIntake.carbs,
+            },
+          ],
         };
       }
     }
