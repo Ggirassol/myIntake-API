@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+app.use(cors());
 app.use(express.json());
 const { getIntakeByDate, addUser, loginUser, createNewToken, addIntake, logoutUser, getEndpointsDescription } = require("./controllers.js");
 const { handleCustomErrors } = require("./handleCustomErrors.js");
