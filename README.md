@@ -1,3 +1,6 @@
+# Check it hosted
+https://myintake-api.onrender.com/api
+
 # About this project
 MyIntake-API is a RESTtful API designed for users to keep track of their daily nutritional intakes.
 
