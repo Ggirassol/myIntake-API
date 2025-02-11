@@ -67,58 +67,114 @@ async function seedTestingDatabase() {
       {
         userId: "6778436ee5e8aac81fb73f15",
         date: "2025-01-01",
-        kcal: 2000,
-        protein: 60,
-        carbs: 140,
+        currIntake: {
+          kcal: 2000,
+          protein: 60,
+          carbs: 140
+        },
+        intakes: [{
+          kcal: 2000,
+          protein: 60,
+          carbs: 140
+        }]
       },
       {
         userId: "6778436ee5e8aac81fb73f15",
         date: "2024-01-31",
-        kcal: 2220,
-        protein: 67,
-        carbs: 168,
+        currIntake: {
+          kcal: 2220,
+          protein: 67,
+          carbs: 168
+        },
+        intakes: [{
+          kcal: 2220,
+          protein: 67,
+          carbs: 168
+        }],
       },
       {
         userId: "6778436ee5e8aac81fb73f15",
         date: "2024-01-30",
-        kcal: 3196,
-        protein: 79,
-        carbs: 233,
+        currIntake: {
+          kcal: 3196,
+          protein: 79,
+          carbs: 233
+        },
+        intakes: [{
+          kcal: 3196,
+          protein: 79,
+          carbs: 233
+        }],
       },
       {
         userId: "aa345ccd778fbde485ffaeda",
         date: "2024-12-31",
-        kcal: 3679,
-        protein: 83,
-        carbs: 278,
+        currIntake: {
+          kcal: 3679,
+          protein: 83,
+          carbs: 278
+        },
+        intakes: [{
+          kcal: 3679,
+          protein: 83,
+          carbs: 278
+        }],
       },
       {
         userId: "aa345ccd778fbde485ffaeda",
         date: new Date().toISOString().slice(0, 10),
-        kcal: 3123,
-        protein: 123,
-        carbs: 456,
+        currIntake: {
+          kcal: 3123,
+          protein: 123,
+          carbs: 456
+        },
+        intakes: [{
+          kcal: 3123,
+          protein: 123,
+          carbs: 456
+        }],
       },
       {
         userId: "abc3548cafebcf7586acde8",
         date: "2024-12-25",
-        kcal: 2789,
-        protein: 88,
-        carbs: 173,
+        currIntake: {
+          kcal: 2789,
+          protein: 88,
+          carbs: 173
+        },
+        intakes: [{
+          kcal: 2789,
+          protein: 88,
+          carbs: 173
+        }],
       },
       {
         userId: "abc3548cafebcf7586acde8",
         date: "2025-01-01",
-        kcal: 3001,
-        protein: 63,
-        carbs: 244,
+        currIntake: {
+          kcal: 3001,
+          protein: 63,
+          carbs: 244
+        },
+        intakes: [{
+          kcal: 3001,
+          protein: 63,
+          carbs: 244
+        }],
       },
       {
         userId: "684abefee8356aceaff74bb4",
         date: "2025-01-02",
-        kcal: 2000,
-        protein: 60,
-        carbs: 140,
+        currIntake: {
+          kcal: 2000,
+          protein: 60,
+          carbs: 140
+        },
+        intakes: [{
+          kcal: 2000,
+          protein: 60,
+          carbs: 140
+        }],
       },
     ];
 

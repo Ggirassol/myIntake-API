@@ -60,7 +60,7 @@ function testForTokens(method, endpoint, body) {
 
 
 describe("GET /api/:date", () => {
-    it("returns an object with only date, kcal, protein and carb properties when passed valid userId and valid date. code 200", () => {
+    it("returns an object with date, currIntake and intakes containing kcal, protein and carb properties when passed valid userId and valid date. code 200", () => {
       return request(app)
         .get("/api/2024-12-31")
         .set("Authorization", `Bearer ${validToken}`)
@@ -70,9 +70,16 @@ describe("GET /api/:date", () => {
           const intake = res.body.intake;
           expect(intake).toMatchObject({
             date: "2024-12-31",
-            kcal: 3679,
-            protein: 83,
-            carbs: 278,
+            currIntake: {
+              kcal: 3679,
+              protein: 83,
+              carbs: 278
+            },
+            intakes: [{
+              kcal: 3679,
+              protein: 83,
+              carbs: 278
+            }]
           });
         });
     });
@@ -262,8 +269,13 @@ describe("POST /api/add-intake", () => {
       const result = res.body.result
       expect(result).toMatchObject({
         sucess: true,
-        intake: {
-          date: today,
+        date: today,
+        currIntake: {
+          kcal: 5000,
+          protein: 100,
+          carbs: 300,
+        },
+        intakes: {
           kcal: 5000,
           protein: 100,
           carbs: 300,
@@ -333,12 +345,22 @@ describe("PUT /api/add-more-intake", () => {
         const result = res.body.result;
         expect(result).toMatchObject({
           sucess: true,
-          updatedIntake: {
-            date: today,
+          date: today,
+          currIntake: {
             kcal: 3123 + 400,
             protein: 123 + 20,
-            carbs: 456 + 50,
+            carbs: 456 + 50
           },
+          intakes: [{
+            kcal: 3123,
+            protein: 123,
+            carbs: 456,
+          },
+          {
+            kcal: 400,
+            protein: 20,
+            carbs: 50,
+          }]
         });
         const updatedIntake = selectIntakeByDate(
           "aa345ccd778fbde485ffaeda",
@@ -347,11 +369,11 @@ describe("PUT /api/add-more-intake", () => {
         return updatedIntake;
       })
       .then((updatedIntake) => {
-        expect(updatedIntake).toMatchObject({
-          date: updatedIntake.date,
-          kcal: updatedIntake.kcal,
-          protein: updatedIntake.protein,
-          carbs: updatedIntake.carbs,
+        const currIntake = updatedIntake.currIntake
+        expect(currIntake).toMatchObject({
+          kcal: currIntake.kcal,
+          protein: currIntake.protein,
+          carbs: currIntake.carbs,
         });
       });
   });
