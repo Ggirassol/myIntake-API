@@ -147,8 +147,7 @@ async function insertIntake(newIntake) {
   for (const field of numericFields) {
     if (typeof newIntake[field] !== "number" || newIntake[field] < 0) {
       console.log(`Checking field: ${field}, Value: ${newIntake[field]}`);
-      return Promise.reject({ status: 400, msg: `Kcal, protein or carb values invalid.
-      Please submit positive numbers only` });
+      return Promise.reject({ status: 400, msg: "Kcal, protein or carb values invalid. Please submit positive numbers only" });
     }
   }
     try {

@@ -393,8 +393,7 @@ describe("POST /api/add-intake", () => {
           .expect(400)
           .then((res) => {
             const error = res.body;
-            expect(error.msg).toBe(`Kcal, protein or carb values invalid.
-      Please submit positive numbers only`);
+            expect(error.msg).toBe("Kcal, protein or carb values invalid. Please submit positive numbers only");
           });
       })
     );
