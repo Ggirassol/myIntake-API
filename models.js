@@ -5,7 +5,7 @@ const { ObjectId } = require("bson");
 const endpoints = require("./endpoints.json");
 
 async function selectIntakeByDate(userId, date) {
-    const regexUserId = /^[a-f0-9]+$/;
+    const regexUserId = /^[a-f0-9]{24}$/;
     const regexDate = /^(202[4-9]|20[3-9][0-9]|[3-9][0-9]{3,})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
 
     if (regexUserId.test(userId) === false) {
@@ -128,13 +128,42 @@ async function generateNewToken(userId) {
 }
 
 async function insertIntake(newIntake) {
-    if (!newIntake.userId || ! newIntake.date || !newIntake.kcal || !newIntake.protein || !newIntake.carbs) {
-        return Promise.reject({ status: 400, msg: "Missing required fields"})
+  const requiredFields = ['userId', 'date', 'kcal', 'protein', 'carbs'];
+  for (const field of requiredFields) {
+    if (newIntake[field] === null || newIntake[field] === undefined) {
+      return Promise.reject({ status: 400, msg: `Missing required fields` });
     }
+  }
+  const regexUserId = /^[a-f0-9]{24}$/;
+  if (!regexUserId.test(newIntake.userId)) {
+    return Promise.reject({ status: 400, msg: "User not found" });
+  }
+
+  if (new Date(newIntake.date).toISOString().slice(0, 10) !== newIntake.date) {
+    return Promise.reject({ status: 400, msg: "Invalid date" });
+  }
+
+  const numericFields = ['kcal', 'protein', 'carbs'];
+  for (const field of numericFields) {
+    if (typeof newIntake[field] !== "number" || newIntake[field] < 0) {
+      console.log(`Checking field: ${field}, Value: ${newIntake[field]}`);
+      return Promise.reject({ status: 400, msg: `Kcal, protein or carb values invalid.
+      Please submit positive numbers only` });
+    }
+  }
     try {
       await connectToDatabase();
       const db = client.db("myIntake");
       const intakes = db.collection("intakes");
+      const users = db.collection("users");
+
+      const foundUser = await users.findOne({
+        _id: ObjectId.createFromHexString(newIntake.userId)
+      })
+
+      if (foundUser === null) {
+        return Promise.reject({ status: 404, msg: "User not found"})
+      }
 
       const foundIntake = await intakes.findOne({
         userId: newIntake.userId,
