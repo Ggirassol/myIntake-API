@@ -325,6 +325,80 @@ describe("POST /api/add-intake", () => {
       })
     )
   })
+  it("returns an error message when userId does nor exist. Code 404", () => {
+    return request(app)
+    .post("/api/add-intake")
+    .set("Authorization", `Bearer ${validToken}`)
+    .send({
+      userId: "bbbbbccdbbbfbde444ffaeda",
+      date: today,
+      kcal: 1,
+      protein: 1,
+      carbs: 1,
+    })
+    .expect(404)
+    .then((res) => {
+      const error = res.body
+      expect(error.msg).toBe("User not found")
+    })
+  })
+  it("returns an error message when userId format is invalid. Code 400", () => {
+    return request(app)
+    .post("/api/add-intake")
+    .set("Authorization", `Bearer ${validToken}`)
+    .send({
+      userId: "bbb4323",
+      date: today,
+      kcal: 1,
+      protein: 1,
+      carbs: 1,
+    })
+    .expect(400)
+    .then((res) => {
+      const error = res.body
+      expect(error.msg).toBe("User not found")
+    })
+  })
+  it("returns an error message when date is invalid. Code 400", () => {
+    return request(app)
+    .post("/api/add-intake")
+    .set("Authorization", `Bearer ${validToken}`)
+    .send({
+      userId: "6778436ee5e8aac81fb73f15",
+      date: "2025-02-29",
+      kcal: 1,
+      protein: 1,
+      carbs: 1,
+    })
+    .expect(400)
+    .then((res) => {
+      const error = res.body
+      expect(error.msg).toBe("Invalid date")
+    })
+  })
+  it("returns an error message when kcal, carbs or protein input values are not a positive number. Code 400", () => {
+    const invalidInputBodies = [
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: "1", protein: 1, carbs: 1 },
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: -1, protein: 1, carbs: 1 },
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: "1", carbs: 1 },
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: 1, carbs: -1 },
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: 1, carbs: "1" }
+    ];
+    return Promise.all(
+      invalidInputBodies.map(async (body) => {
+        return request(app)
+          .post("/api/add-intake")
+          .set("Authorization", `Bearer ${validToken}`)
+          .send(body)
+          .expect(400)
+          .then((res) => {
+            const error = res.body;
+            expect(error.msg).toBe(`Kcal, protein or carb values invalid.
+      Please submit positive numbers only`);
+          });
+      })
+    );
+  })
   it("returns an object reflecting the successfull operation, date, currIntake and intakes array when when there is already record of intake for the given date. Code 201", () => {
     return request(app)
       .post("/api/add-intake")
