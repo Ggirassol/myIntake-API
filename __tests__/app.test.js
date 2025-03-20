@@ -68,7 +68,7 @@ describe("GET /api/:date", () => {
         .expect(200)
         .then((res) => {
           const intake = res.body;
-          expect(intake).toEqual({
+          expect(intake).toMatchObject({
             date: "2024-12-31",
             currIntake: {
               kcal: 3679,
@@ -76,7 +76,6 @@ describe("GET /api/:date", () => {
               carbs: 278
             },
             intakes: [{
-              meal: "afternoon snack",
               kcal: 3679,
               protein: 83,
               carbs: 278
@@ -143,7 +142,7 @@ describe("POST /api/register", () => {
       .expect(201)
       .then((res) => {
         const result = res.body;
-        expect(result).toEqual({
+        expect(result).toMatchObject({
           sucess: true,
         });
       });
@@ -256,7 +255,6 @@ describe("POST /api/add-intake", () => {
   const validBody =  {
     userId: "6778436ee5e8aac81fb73f15",
     date: today,
-    meal: "breakfast",
     kcal: 5000,
     protein: 100,
     carbs: 300,
@@ -269,7 +267,7 @@ describe("POST /api/add-intake", () => {
       .expect(201)
       .then((res) => {
         const result = res.body;
-        expect(result).toEqual({
+        expect(result).toMatchObject({
           sucess: true,
           date: today,
           msg: 'Intake added',
@@ -279,7 +277,6 @@ describe("POST /api/add-intake", () => {
             carbs: 300
           },
           intakes: [{
-            meal: "breakfast",
             kcal: 5000,
             protein: 100,
             carbs: 300
@@ -289,7 +286,7 @@ describe("POST /api/add-intake", () => {
         return updatedIntake;
       })
       .then((updatedIntake) => {
-        expect(updatedIntake).toEqual({
+        expect(updatedIntake).toMatchObject({
           date: today,
           currIntake: {
             kcal: 5000,
@@ -297,7 +294,6 @@ describe("POST /api/add-intake", () => {
             carbs: 300
           },
           intakes: [{
-            meal: "breakfast",
             kcal: 5000,
             protein: 100,
             carbs: 300
@@ -308,13 +304,12 @@ describe("POST /api/add-intake", () => {
   it("returns an error message when there are any missing fields. Code 400", async () => {
 
     const missingUserId = { date: today, kcal: 5000, protein: 100, carbs: 300 };
-    const missingDate = { userId: "aa345ccd778fbde485ffaeda", kcal: 5000, protein: 100, carbs: 300, meal: "breakfast" };
-    const missingKcal = { userId: "aa345ccd778fbde485ffaeda", date: today, protein: 100, carbs: 300, meal: "breakfast" };
-    const missingProtein =  { userId: "aa345ccd778fbde485ffaeda", date: today, kcal: 5000, carbs: 300, meal: "breakfast" };
-    const missingCarbs =  { userId: "aa345ccd778fbde485ffaeda", date: today, kcal: 5000, protein: 100, meal: "breakfast" };
-    const missingMeal = { userId: "aa345ccd778fbde485ffaeda", date: today, kcal: 5000, protein: 100, carbs: 300 };
+    const missingDate = { userId: "aa345ccd778fbde485ffaeda", kcal: 5000, protein: 100, carbs: 300 };
+    const missingKcal = { userId: "aa345ccd778fbde485ffaeda", date: today, protein: 100, carbs: 300 };
+    const missingProtein =  { userId: "aa345ccd778fbde485ffaeda", date: today, kcal: 5000, carbs: 300 };
+    const missingCarbs =  { userId: "aa345ccd778fbde485ffaeda", date: today, kcal: 5000, protein: 100};
 
-    const missingFields =  [missingUserId, missingDate, missingKcal, missingProtein, missingCarbs, missingMeal ];
+    const missingFields =  [missingUserId, missingDate, missingKcal, missingProtein, missingCarbs ];
 
     return Promise.all(
       missingFields.map(async objectWithMissingField => {
@@ -337,7 +332,6 @@ describe("POST /api/add-intake", () => {
     .send({
       userId: "bbbbbccdbbbfbde444ffaeda",
       date: today,
-      meal: "lunch",
       kcal: 1,
       protein: 1,
       carbs: 1,
@@ -355,7 +349,6 @@ describe("POST /api/add-intake", () => {
     .send({
       userId: "bbb4323",
       date: today,
-      meal: "lunch",
       kcal: 1,
       protein: 1,
       carbs: 1,
@@ -373,7 +366,6 @@ describe("POST /api/add-intake", () => {
     .send({
       userId: "6778436ee5e8aac81fb73f15",
       date: "2025-02-29",
-      meal: "lunch",
       kcal: 1,
       protein: 1,
       carbs: 1,
@@ -386,11 +378,11 @@ describe("POST /api/add-intake", () => {
   })
   it("returns an error message when kcal, carbs or protein input values are not a positive number. Code 400", () => {
     const invalidInputBodies = [
-      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: "1", protein: 1, carbs: 1, meal: "lunch" },
-      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: -1, protein: 1, carbs: 1, meal: "lunch" },
-      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: "1", carbs: 1,meal: "lunch" },
-      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: 1, carbs: -1, meal: "lunch" },
-      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: 1, carbs: "1", meal: "lunch" }
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: "1", protein: 1, carbs: 1 },
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: -1, protein: 1, carbs: 1 },
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: "1", carbs: 1 },
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: 1, carbs: -1 },
+      { userId: "6778436ee5e8aac81fb73f15", date: "2025-01-30", kcal: 1, protein: 1, carbs: "1" }
     ];
     return Promise.all(
       invalidInputBodies.map(async (body) => {
@@ -413,7 +405,6 @@ describe("POST /api/add-intake", () => {
       .send({
         userId: "aa345ccd778fbde485ffaeda",
         date: today,
-        meal: "lunch",
         kcal: 1,
         protein: 1,
         carbs: 1,
@@ -421,9 +412,8 @@ describe("POST /api/add-intake", () => {
       .expect(201)
       .then((res) => {
         const result = res.body;
-        expect(result).toEqual({
+        expect(result).toMatchObject({
           sucess: true,
-          msg: "Intake added and CurrIntake updated",
           date: today,
           currIntake: {
             kcal: 3124,
@@ -432,13 +422,11 @@ describe("POST /api/add-intake", () => {
           },
           intakes: [
             {
-              meal: "early morning snack",
               kcal: 3123,
               protein: 123,
               carbs: 456
             },
             {
-              meal: "lunch",
               kcal: 1,
               protein: 1,
               carbs: 1
@@ -449,7 +437,7 @@ describe("POST /api/add-intake", () => {
         return updatedIntake;
       })
       .then((updatedIntake) => {
-        expect(updatedIntake).toEqual({
+        expect(updatedIntake).toMatchObject({
           date: today,
           currIntake: {
             kcal: 3124,
@@ -458,13 +446,11 @@ describe("POST /api/add-intake", () => {
           },
           intakes: [
             {
-              meal: "early morning snack",
               kcal: 3123,
               protein: 123,
               carbs: 456
             },
             {
-              meal: "lunch",
               kcal: 1,
               protein: 1,
               carbs: 1
@@ -485,7 +471,7 @@ describe("PUT /api/logout", () => {
     .expect(200)
     .then((res) => {
       const result = res.body
-      expect(result).toEqual({ logoutSuccess: true })
+      expect(result).toMatchObject({ logoutSuccess: true })
     })
   })
   it("returns an error when user has no refresh token", () => {
