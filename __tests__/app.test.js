@@ -5,6 +5,7 @@ const { client } = require("../db/dbconnect.js");
 const jwt = require('jsonwebtoken');
 const { selectIntakeByDate } = require("../models.js");
 const endpoints = require("../endpoints.json");
+const { ObjectId } = require("bson");
 
 beforeEach(async () => {
   await seedTestingDatabase();
@@ -60,7 +61,7 @@ function testForTokens(method, endpoint, body) {
 
 
 describe("GET /api/:date", () => {
-    it("returns an object with date, currIntake and intakes containing kcal, protein and carb properties when passed valid userId and valid date. code 200", () => {
+    it.only("returns an object with date, currIntake and intakes containing kcal, protein and carb properties when passed valid userId and valid date. code 200", () => {
       return request(app)
         .get("/api/2024-12-31")
         .set("Authorization", `Bearer ${validToken}`)
@@ -68,7 +69,9 @@ describe("GET /api/:date", () => {
         .expect(200)
         .then((res) => {
           const intake = res.body;
+          console.log(intake)
           expect(intake).toEqual({
+            _id: "67dc45661f28ee4810c32037",
             date: "2024-12-31",
             currIntake: {
               kcal: 3679,

@@ -66,6 +66,7 @@ async function seedTestingDatabase() {
     const intakeDocs = [
       {
         userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32038"),
         date: "2025-01-01",
         currIntake: {
           kcal: 2000,
@@ -81,6 +82,7 @@ async function seedTestingDatabase() {
       },
       {
         userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32039"),
         date: "2024-01-31",
         currIntake: {
           kcal: 2220,
@@ -96,6 +98,7 @@ async function seedTestingDatabase() {
       },
       {
         userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32031"),
         date: "2024-01-30",
         currIntake: {
           kcal: 3196,
@@ -111,6 +114,7 @@ async function seedTestingDatabase() {
       },
       {
         userId: "aa345ccd778fbde485ffaeda",
+        _id: new ObjectId("67dc45661f28ee4810c32037"),
         date: "2024-12-31",
         currIntake: {
           kcal: 3679,
@@ -126,6 +130,7 @@ async function seedTestingDatabase() {
       },
       {
         userId: "aa345ccd778fbde485ffaeda",
+        _id: new ObjectId("67dc45661f28ee4810c32032"),
         date: new Date().toISOString().slice(0, 10),
         currIntake: {
           kcal: 3123,
@@ -141,6 +146,7 @@ async function seedTestingDatabase() {
       },
       {
         userId: "abc3548cafebcf7586acde8",
+        _id: new ObjectId("67dc45661f28ee4810c32033"),
         date: "2024-12-25",
         currIntake: {
           kcal: 2789,
@@ -156,6 +162,7 @@ async function seedTestingDatabase() {
       },
       {
         userId: "abc3548cafebcf7586acde8",
+        _id: new ObjectId("67dc45661f28ee4810c32034"),
         date: "2025-01-01",
         currIntake: {
           kcal: 3001,
@@ -171,6 +178,7 @@ async function seedTestingDatabase() {
       },
       {
         userId: "684abefee8356aceaff74bb4",
+        _id: new ObjectId("67dc45661f28ee4810c32035"),
         date: "2025-01-02",
         currIntake: {
           kcal: 2000,
