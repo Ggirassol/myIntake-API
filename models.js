@@ -128,7 +128,7 @@ async function generateNewToken(userId) {
 }
 
 async function insertIntake(newIntake) {
-  const requiredFields = ['userId', 'date', 'kcal', 'protein', 'carbs'];
+  const requiredFields = ['userId', 'date', 'kcal', 'protein', 'carbs', 'meal'];
   for (const field of requiredFields) {
     if (newIntake[field] === null || newIntake[field] === undefined) {
       return Promise.reject({ status: 400, msg: `Missing required fields` });
@@ -179,6 +179,7 @@ async function insertIntake(newIntake) {
             carbs: newIntake.carbs
           },
           intakes: [{
+            meal: newIntake.meal,
             kcal: newIntake.kcal,
             protein: newIntake.protein,
             carbs: newIntake.carbs
@@ -206,6 +207,7 @@ async function insertIntake(newIntake) {
           },
           $push: {
             intakes: {
+              meal: newIntake.meal,
               kcal: newIntake.kcal,
               protein: newIntake.protein,
               carbs: newIntake.carbs,
@@ -226,6 +228,7 @@ async function insertIntake(newIntake) {
           intakes: [
             ...foundIntake.intakes,
             {
+              meal: newIntake.meal,
               kcal: newIntake.kcal,
               protein: newIntake.protein,
               carbs: newIntake.carbs,

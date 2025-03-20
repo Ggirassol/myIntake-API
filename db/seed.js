@@ -73,6 +73,7 @@ async function seedTestingDatabase() {
           carbs: 140
         },
         intakes: [{
+          meal: "morning snack",
           kcal: 2000,
           protein: 60,
           carbs: 140
@@ -87,6 +88,7 @@ async function seedTestingDatabase() {
           carbs: 168
         },
         intakes: [{
+          meal: "breakfast",
           kcal: 2220,
           protein: 67,
           carbs: 168
@@ -101,6 +103,7 @@ async function seedTestingDatabase() {
           carbs: 233
         },
         intakes: [{
+          meal: "lunch",
           kcal: 3196,
           protein: 79,
           carbs: 233
@@ -115,6 +118,7 @@ async function seedTestingDatabase() {
           carbs: 278
         },
         intakes: [{
+          meal: "afternoon snack",
           kcal: 3679,
           protein: 83,
           carbs: 278
@@ -129,6 +133,7 @@ async function seedTestingDatabase() {
           carbs: 456
         },
         intakes: [{
+          meal: "early morning snack",
           kcal: 3123,
           protein: 123,
           carbs: 456
@@ -143,6 +148,7 @@ async function seedTestingDatabase() {
           carbs: 173
         },
         intakes: [{
+          meal: "dinner",
           kcal: 2789,
           protein: 88,
           carbs: 173
@@ -157,6 +163,7 @@ async function seedTestingDatabase() {
           carbs: 244
         },
         intakes: [{
+          meal: "brunch",
           kcal: 3001,
           protein: 63,
           carbs: 244
@@ -171,6 +178,7 @@ async function seedTestingDatabase() {
           carbs: 140
         },
         intakes: [{
+          meal: "supper",
           kcal: 2000,
           protein: 60,
           carbs: 140
