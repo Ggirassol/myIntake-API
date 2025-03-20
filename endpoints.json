@@ -18,11 +18,13 @@
         "carbs": 101
       },
       "intakes": [{
+        "meal": "breakfast",
         "kcal": 1000,
         "protein": 100,
         "carbs": 100
       },
       {
+        "meal": "lunch",
         "kcal": 1,
         "protein": 1,
         "carbs": 1
@@ -79,6 +81,7 @@
     "exampleRequestBody": {
       "userId": "7664566aa5e8aab81fb89b69",
       "date": "2025-02-02",
+      "meal": "lunch",
       "kcal": 1000,
       "protein": 100,
       "carbs": 100
@@ -93,6 +96,7 @@
           "carbs": 100
         },
         "intakes": [{
+          "meal": "lunch",
           "kcal": 1000,
           "protein": 100,
           "carbs": 100
