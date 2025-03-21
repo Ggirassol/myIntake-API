@@ -5,6 +5,7 @@ const { client } = require("../db/dbconnect.js");
 const jwt = require('jsonwebtoken');
 const { selectIntakeByDate } = require("../models.js");
 const endpoints = require("../endpoints.json");
+const { ObjectId } = require("bson");
 
 beforeEach(async () => {
   await seedTestingDatabase();
@@ -69,6 +70,7 @@ describe("GET /api/:date", () => {
         .then((res) => {
           const intake = res.body;
           expect(intake).toEqual({
+            _id: "67dc45661f28ee4810c32037",
             date: "2024-12-31",
             currIntake: {
               kcal: 3679,

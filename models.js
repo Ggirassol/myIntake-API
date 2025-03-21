@@ -20,7 +20,7 @@ async function selectIntakeByDate(userId, date) {
             const db = client.db("myIntake");
             const intakes = db.collection("intakes");
             const options = {
-                projection: { _id:0, date: 1, currIntake: 1, intakes: 1}
+                projection: { _id:1, date: 1, currIntake: 1, intakes: 1}
             }
             const intake = await intakes.findOne({$and : [{userId: userId}, {date: date}]}, options)
             if (!intake) {
