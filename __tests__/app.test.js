@@ -291,7 +291,7 @@ describe("POST /api/add-intake", () => {
         return updatedIntake;
       })
       .then((updatedIntake) => {
-        expect(updatedIntake).toEqual({
+        expect(updatedIntake).toMatchObject({
           date: today,
           currIntake: {
             kcal: 5000,
@@ -305,6 +305,7 @@ describe("POST /api/add-intake", () => {
             carbs: 300
           }]
         });
+        expect(updatedIntake).toHaveProperty("_id")
       });
   })
   it("returns an error message when there are any missing fields. Code 400", async () => {
@@ -452,6 +453,7 @@ describe("POST /api/add-intake", () => {
       })
       .then((updatedIntake) => {
         expect(updatedIntake).toEqual({
+          _id: new ObjectId("67dc45661f28ee4810c32032"),
           date: today,
           currIntake: {
             kcal: 3124,
