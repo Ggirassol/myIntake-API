@@ -269,8 +269,85 @@ async function removeUserRefreshToken (userId) {
   }
 }
 
+async function editTodayIntake(userId, intakeId, intakeIndex, newIntake) {
+  const regexUserId = /^[a-f0-9]{24}$/;
+  if (!regexUserId.test(userId)) {
+    return Promise.reject({ status: 400, msg: "User not found" });
+  }
+  if (!intakeId) {
+    return Promise.reject({ status: 400, msg: `Missing intakeId` });
+  }
+  if (!intakeIndex && intakeIndex!== 0) {
+    return Promise.reject({ status: 400, msg: `Missing intakeIndex` });
+  }
+  const requiredFields = ['kcal', 'protein', 'carbs', 'meal'];
+  for (const field of requiredFields) {
+    if (newIntake[field] === null || newIntake[field] === undefined) {
+      return Promise.reject({ status: 400, msg: `Missing required fields` });
+    }
+  }
+  const numericFields = ['kcal', 'protein', 'carbs'];
+  for (const field of numericFields) {
+    if (typeof newIntake[field] !== "number" || newIntake[field] < 0) {
+      console.log(`Checking field: ${field}, Value: ${newIntake[field]}`);
+      return Promise.reject({ status: 400, msg: "Kcal, protein or carb values invalid. Please submit positive numbers only" });
+    }
+  }
+    try {
+      await connectToDatabase();
+      const db = client.db("myIntake");
+      const intakes = db.collection("intakes");
+
+      const foundIntake = await intakes.findOne({
+        userId: userId,
+        _id: ObjectId.createFromHexString(intakeId)
+      });
+
+      const currIntakesArray = foundIntake.intakes;
+      const updatedIntakesArray = currIntakesArray.map((intake, i) => i === intakeIndex ? newIntake : intake);
+      const intakeTotals = {
+        kcal: 0,
+        protein: 0,
+        carbs: 0
+      }
+      updatedIntakesArray.forEach(intake => {
+        intakeTotals.kcal += intake.kcal;
+        intakeTotals.protein += intake.protein;
+        intakeTotals.carbs += intake.carbs;
+      });
+
+      const updatedIntake = await intakes.updateOne(
+        {
+          userId: userId,
+          _id: ObjectId.createFromHexString(intakeId)
+        },
+        {
+          $set: {
+            currIntake: intakeTotals,
+            intakes: updatedIntakesArray
+          }
+        }
+      )
+      if (updatedIntake.modifiedCount === 1) {
+        console.log("HEYY")
+        return {
+          success: true,
+          msg: "intake edited successfully",
+          userId: foundIntake.userId,
+          _id: foundIntake._id,
+          date: foundIntake.date,
+          currIntake: intakeTotals,
+          intakes: updatedIntakesArray
+        }
+      }
+    }
+    catch (err) {
+      console.log("ERROR: ",err)
+  }
+}
+
 function selectDescription() {
   return Promise.resolve(endpoints);
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription }
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake }
