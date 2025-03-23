@@ -554,6 +554,25 @@ describe("PUT /api/edit-intake", () => {
           carbs: 400
         }],
       })
+      const updatedIntake = selectIntakeByDate("aa345ccd778fbde485ffaeda", today)
+      return updatedIntake
+      .then((updatedIntake) => {
+        expect(updatedIntake).toEqual({
+          _id: new ObjectId ("67dc45661f28ee4810c32032"),
+          date: new Date().toISOString().slice(0, 10),
+          currIntake: {
+            kcal: 3000,
+            protein: 123,
+            carbs: 400
+          },
+          intakes: [{
+            meal: "morning snack",
+            kcal: 3000,
+            protein: 123,
+            carbs: 400
+          }],
+        })
+      })
     })
   })
   testForTokens("put", "/api/edit-intake", { bodyToSend })
