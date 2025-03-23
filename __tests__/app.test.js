@@ -539,7 +539,6 @@ describe("PUT /api/edit-intake", () => {
       expect(editedIntake).toEqual({
         success: true,
         msg: "intake edited successfully",
-        userId: "aa345ccd778fbde485ffaeda",
         _id: "67dc45661f28ee4810c32032",
         date: new Date().toISOString().slice(0, 10),
         currIntake: {

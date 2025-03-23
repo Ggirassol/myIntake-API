@@ -329,11 +329,9 @@ async function editTodayIntake(userId, intakeId, intakeIndex, newIntake) {
         }
       )
       if (updatedIntake.modifiedCount === 1) {
-        console.log("HEYY")
         return {
           success: true,
           msg: "intake edited successfully",
-          userId: foundIntake.userId,
           _id: foundIntake._id,
           date: foundIntake.date,
           currIntake: intakeTotals,
