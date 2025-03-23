@@ -518,21 +518,22 @@ describe("PUT /api/logout", () => {
 })
 
 describe("PUT /api/edit-intake", () => {
+  const bodyToSend = {
+    userId: "aa345ccd778fbde485ffaeda",
+    intakeId: "67dc45661f28ee4810c32032",
+    intakeIndex: 0,
+    newIntake: {
+      meal: "morning snack",
+      kcal: 3000,
+      protein: 123,
+      carbs: 400
+    }
+   }
   it("returns an object reflecting the edited intake and the successful operation", () => { 
     return request(app)
     .put("/api/edit-intake")
     .set("Authorization", `Bearer ${validToken}`)
-    .send({
-      userId: "aa345ccd778fbde485ffaeda",
-      intakeId: "67dc45661f28ee4810c32032",
-      intakeIndex: 0,
-      newIntake: {
-        meal: "morning snack",
-        kcal: 3000,
-        protein: 123,
-        carbs: 400
-      }
-     })
+    .send(bodyToSend)
     .expect(200)
     .then((res) => {
       const editedIntake = res.body;
@@ -555,6 +556,7 @@ describe("PUT /api/edit-intake", () => {
       })
     })
   })
+  testForTokens("put", "/api/edit-intake", { bodyToSend })
 })
 
 describe("GET /api/", () => {
