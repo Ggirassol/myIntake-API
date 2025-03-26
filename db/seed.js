@@ -66,7 +66,95 @@ async function seedTestingDatabase() {
     const intakeDocs = [
       {
         userId: "6778436ee5e8aac81fb73f15",
-        _id: new ObjectId("67dc45661f28ee4810c32038"),
+        _id: new ObjectId("67dc45661f28ee4810c32011"),
+        date: "2025-01-06",
+        currIntake: {
+          kcal: 3100,
+          protein: 49,
+          carbs: 200
+        },
+        intakes: [{
+          meal: "late lunch",
+          kcal: 3100,
+          protein: 49,
+          carbs: 200
+        }]
+      },
+      {
+        userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32022"),
+        date: "2025-01-05",
+        currIntake: {
+          kcal: 3999,
+          protein: 129,
+          carbs: 480
+        },
+        intakes: [{
+          meal: "supper",
+          kcal: 3999,
+          protein: 129,
+          carbs: 480
+        }]
+      },
+      {
+        userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32033"),
+        date: "2025-01-04",
+        currIntake: {
+          kcal: 2450,
+          protein: 80,
+          carbs: 299
+        },
+        intakes: [
+        {
+          meal: "breakfast",
+          kcal: 1450,
+          protein: 30,
+          carbs: 99
+        },
+        {
+          meal: "lunch",
+          kcal: 1000,
+          protein: 50,
+          carbs: 200
+        },
+      ]
+      },
+      {
+        userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32044"),
+        date: "2025-01-03",
+        currIntake: {
+          kcal: 4000,
+          protein: 150,
+          carbs: 500
+        },
+        intakes: [{
+          meal: "monster lunch",
+          kcal: 4000,
+          protein: 150,
+          carbs: 500
+        }]
+      },
+      {
+        userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32055"),
+        date: "2025-01-02",
+        currIntake: {
+          kcal: 2111,
+          protein: 61,
+          carbs: 141
+        },
+        intakes: [{
+          meal: "afternoon snack",
+          kcal: 2111,
+          protein: 61,
+          carbs: 141
+        }]
+      },
+      {
+        userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32066"),
         date: "2025-01-01",
         currIntake: {
           kcal: 2000,
@@ -83,7 +171,7 @@ async function seedTestingDatabase() {
       {
         userId: "6778436ee5e8aac81fb73f15",
         _id: new ObjectId("67dc45661f28ee4810c32039"),
-        date: "2024-01-31",
+        date: "2024-12-31",
         currIntake: {
           kcal: 2220,
           protein: 67,
@@ -98,8 +186,8 @@ async function seedTestingDatabase() {
       },
       {
         userId: "6778436ee5e8aac81fb73f15",
-        _id: new ObjectId("67dc45661f28ee4810c32031"),
-        date: "2024-01-30",
+        _id: new ObjectId("67dc45661f28ee4810c32001"),
+        date: "2024-12-30",
         currIntake: {
           kcal: 3196,
           protein: 79,
@@ -110,6 +198,22 @@ async function seedTestingDatabase() {
           kcal: 3196,
           protein: 79,
           carbs: 233
+        }],
+      },
+      {
+        userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32031"),
+        date: "2024-12-29",
+        currIntake: {
+          kcal: 3454,
+          protein: 100,
+          carbs: 400
+        },
+        intakes: [{
+          meal: "fancy brunch",
+          kcal: 3454,
+          protein: 100,
+          carbs: 400
         }],
       },
       {
@@ -146,7 +250,7 @@ async function seedTestingDatabase() {
       },
       {
         userId: "abc3548cafebcf7586acde8",
-        _id: new ObjectId("67dc45661f28ee4810c32033"),
+        _id: new ObjectId("67dc45661f28ee4810c32003"),
         date: "2024-12-25",
         currIntake: {
           kcal: 2789,

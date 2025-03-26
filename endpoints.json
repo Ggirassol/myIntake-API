@@ -15,7 +15,7 @@
       "date": "2025-01-31",
       "currIntake": {
         "kcal": 1001,
-        "protein": 101,
+        ""protein"": 101,
         "carbs": 101
       },
       "intakes": [{
@@ -102,6 +102,69 @@
           "protein": 100,
           "carbs": 100
         }]
+    }
+  },
+  "POST /api/weekly": {
+    "description": "serves an object reflecting the weekly summary for a date provided",
+    "requiredHeaders": {
+      "Authorization": {
+        "example": "Bearer theNewGeneratedToken.Comes.Here"
+      }
+    },
+    "exampleRequestBody": {
+      "userId": "7664566aa5e8aab81fb89b69",
+      "date": "2025-02-02"
+    },
+    "exampleResponse": {
+      "weekSum": {
+        "kcal": 19976,
+        "protein": 626,
+        "carbs": 1961
+      },
+      "weekIntakes": [
+        {
+          "day": "monday",
+          "kcal": 3196,
+          "protein": 79,
+          "carbs": 233
+        },
+        {
+          "day": "tuesday",
+          "kcal": 2220,
+          "protein": 67,
+          "carbs": 168
+        },
+        {
+          "day": "wednesday",
+          "kcal": 2000,
+          "protein": 60,
+          "carbs": 140
+        },
+        {
+          "day": "thursday",
+          "kcal": 2111,
+          "protein": 61,
+          "carbs": 141
+        },
+        {
+          "day": "friday",
+          "kcal": 4000,
+          "protein": 150,
+          "carbs": 500
+        },
+        {
+          "day": "saturday",
+          "kcal": 2450,
+          "protein": 80,
+          "carbs": 299
+        },
+        {
+          "day": "sunday",
+          "kcal": 3999,
+          "protein": 129,
+          "carbs": 480
+        }
+      ]
     }
   },
   "PUT /api/logout": {
