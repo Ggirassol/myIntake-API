@@ -344,8 +344,80 @@ async function editTodayIntake(userId, intakeId, intakeIndex, newIntake) {
   }
 }
 
+async function findWeeklyIntake(userId, date) {
+  
+  const regexDate = /^(202[4-9]|20[3-9][0-9]|[3-9][0-9]{3,})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+  if (regexDate.test(date) === false) {
+      return Promise.reject({ status: 400, msg: "Invalid date format"})
+  }
+
+  const d = new Date(date);
+  const weekday = d.getDay();
+  const datesToLookFor = [];
+
+  if (weekday === 0) {
+    datesToLookFor.push(date)
+    let count = -6;
+    while (count < 0) {
+      datesToLookFor.push(new Date(d.setDate(d.getDate() - 1)).toISOString().slice(0, 10));
+      count++;
+    }
+  } else {
+    const monday = new Date(d.setDate(d.getDate() - weekday + 1)).toISOString().slice(0, 10);
+    datesToLookFor.push(monday)
+    let count = 6
+    while (count > 0) {
+      datesToLookFor.push(new Date(d.setDate(d.getDate() + 1)).toISOString().slice(0, 10))
+      count--;
+    }
+  }
+    
+  try {
+    await connectToDatabase();
+    const db = client.db("myIntake");
+    const intakes = db.collection("intakes");
+
+    const options = {
+      sort: {date: 1},
+      projection: { _id:0, intakes:1, date: 1, currIntake: 1}
+    }
+
+    const intakeTotals = await intakes.find( {userId: userId, date: {$in: datesToLookFor}}, options).toArray()
+
+    if (intakeTotals.length === 0) {
+      return {
+        msg: "there are no records on this week"
+      }
+    } else {
+    const weekIntakes = [];
+    let weekSum = {
+      kcal: 0,
+      protein: 0,
+      carbs: 0
+    }
+    const weekDaysList = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+
+    intakeTotals.forEach((dailyIntake, index) => {
+      weekIntakes.push(dailyIntake.currIntake);
+      const weekday = new Date (dailyIntake.date).getDay();
+      weekIntakes[index].day = weekDaysList[weekday]
+      weekSum.kcal += dailyIntake.currIntake.kcal;
+      weekSum.protein += dailyIntake.currIntake.protein;
+      weekSum.carbs += dailyIntake.currIntake.carbs;
+    })
+    return {
+      weekSum,
+      weekIntakes
+    }
+  }
+  }
+  catch (err) {
+    console.log("ERROR: ",err)
+  }
+}
+
 function selectDescription() {
   return Promise.resolve(endpoints);
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake }
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake }

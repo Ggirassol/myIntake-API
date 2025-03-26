@@ -578,6 +578,175 @@ describe("PUT /api/edit-intake", () => {
   testForTokens("put", "/api/edit-intake", { bodyToSend })
 })
 
+describe("GET /api/weekly", () => {
+  const expectedResult = {
+    weekSum: {
+      kcal: 19976,
+      protein: 626,
+      carbs: 1961,
+    },
+    weekIntakes: [
+      {
+        day: "monday",
+        kcal: 3196,
+        protein: 79,
+        carbs: 233,
+      },
+      {
+        day: "tuesday",
+        kcal: 2220,
+        protein: 67,
+        carbs: 168,
+      },
+      {
+        day: "wednesday",
+        kcal: 2000,
+        protein: 60,
+        carbs: 140,
+      },
+      {
+        day: "thursday",
+        kcal: 2111,
+        protein: 61,
+        carbs: 141,
+      },
+      {
+        day: "friday",
+        kcal: 4000,
+        protein: 150,
+        carbs: 500,
+      },
+      {
+        day: "saturday",
+        kcal: 2450,
+        protein: 80,
+        carbs: 299,
+      },
+      {
+        day: "sunday",
+        kcal: 3999,
+        protein: 129,
+        carbs: 480,
+      },
+    ],
+  };
+  it("returns weekly summary, when passed a midweek day date", () => {
+    return request(app)
+      .post("/api/weekly")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "6778436ee5e8aac81fb73f15",
+        date: "2025-01-01",
+      })
+      .expect(200)
+      .then((res) => {
+        const thisWeekIntake = res.body;
+        expect(thisWeekIntake).toEqual(expectedResult);
+      });
+  });
+  it("returns weekly summary, when passed a Saturday date", () => {
+    return request(app)
+      .post("/api/weekly")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "6778436ee5e8aac81fb73f15",
+        date: "2024-12-30",
+      })
+      .expect(200)
+      .then((res) => {
+        const thisWeekIntake = res.body;
+        expect(thisWeekIntake).toEqual(expectedResult);
+      });
+  });
+  it("returns weekly summary, when passed a Sunday date", () => {
+    return request(app)
+      .post("/api/weekly")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "6778436ee5e8aac81fb73f15",
+        date: "2025-01-01",
+      })
+      .expect(200)
+      .then((res) => {
+        const thisWeekIntake = res.body;
+        expect(thisWeekIntake).toEqual(expectedResult);
+      });
+  });
+  it("returns all days of the week (ordered by date, monday to sunday) when there are records of it", () => {
+    return request(app)
+    .post("/api/weekly")
+    .set("Authorization", `Bearer ${validToken}`)
+    .send({
+      userId: "6778436ee5e8aac81fb73f15",
+      date: "2025-01-01",
+    })
+    .expect(200)
+    .then((res) => {
+      const thisWeekIntake = res.body;
+      const orderedWeekDaysList = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+      const thisWeekIntakeWeekdays = thisWeekIntake.weekIntakes.map(intake => {
+        return intake.day
+      })
+      expect(thisWeekIntakeWeekdays).toEqual(orderedWeekDaysList);
+    });
+  })
+  it("returns the correct weekly sum", () => {
+    return request(app)
+      .post("/api/weekly")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "6778436ee5e8aac81fb73f15",
+        date: "2025-01-01",
+      })
+      .expect(200)
+      .then((res) => {
+        const thisWeekIntake = res.body;
+        expect(thisWeekIntake.weekSum).toEqual({
+          kcal: 19976,
+          protein: 626,
+          carbs: 1961,
+        });
+      });
+  });
+  it("handles no entries for the all week", () => {
+    return request(app)
+    .post("/api/weekly")
+    .set("Authorization", `Bearer ${validToken}`)
+    .send({
+      userId: "6778436ee5e8aac81fb73f15",
+      date: "2024-12-22",
+    })
+    .expect(200)
+    .then((res) => {
+      const thisWeekIntake = res.body;
+      expect(thisWeekIntake).toEqual({
+        msg: "there are no records on this week"
+      });
+    });
+  })
+  it("handles wrong date format", () => {
+    return request(app)
+    .post("/api/weekly")
+    .set("Authorization", `Bearer ${validToken}`)
+    .send({
+      userId: "6778436ee5e8aac81fb73f15",
+      date: "22-12-2024",
+    })
+    .expect(400)
+    .then((res) => {
+      const thisWeekIntake = res.body;
+      expect(thisWeekIntake).toEqual({
+        msg: "Invalid date format"
+      });
+    });
+  })
+  testForTokens("post", "/api/weekly", {
+    userId: "6778436ee5e8aac81fb73f15",
+    date: "22-12-2024",
+  })
+});
+
+
 describe("GET /api/", () => {
   it("responds with an object matching the endpoints.json file object", () => {
     return request(app)
