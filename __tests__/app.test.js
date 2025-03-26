@@ -734,8 +734,8 @@ describe("GET /api/weekly", () => {
     })
     .expect(400)
     .then((res) => {
-      const thisWeekIntake = res.body;
-      expect(thisWeekIntake).toEqual({
+      const error = res.body;
+      expect(error).toEqual({
         msg: "Invalid date format"
       });
     });
