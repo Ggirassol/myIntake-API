@@ -8,7 +8,7 @@
       }
     },
     "exampleRequestBody": {
-        "userId": "7664566aa5e8aab81fb89b69"
+      "userId": "7664566aa5e8aab81fb89b69"
     },
     "exampleResponse": {
       "_id": "67dc45661f28ee4810c32037",
@@ -18,18 +18,20 @@
         "protein": 101,
         "carbs": 101
       },
-      "intakes": [{
-        "meal": "breakfast",
-        "kcal": 1000,
-        "protein": 100,
-        "carbs": 100
-      },
-      {
-        "meal": "lunch",
-        "kcal": 1,
-        "protein": 1,
-        "carbs": 1
-      }]
+      "intakes": [
+        {
+          "meal": "breakfast",
+          "kcal": 1000,
+          "protein": 100,
+          "carbs": 100
+        },
+        {
+          "meal": "lunch",
+          "kcal": 1,
+          "protein": 1,
+          "carbs": 1
+        }
+      ]
     }
   },
   "POST /api/register": {
@@ -88,20 +90,22 @@
       "carbs": 100
     },
     "exampleResponse": {
-        "sucess": true,
-        "date": "2025-02-02",
-        "msg": "Intake added",
-        "currIntake": {
-          "kcal": 1000,
-          "protein": 100,
-          "carbs": 100
-        },
-        "intakes": [{
+      "sucess": true,
+      "date": "2025-02-02",
+      "msg": "Intake added",
+      "currIntake": {
+        "kcal": 1000,
+        "protein": 100,
+        "carbs": 100
+      },
+      "intakes": [
+        {
           "meal": "lunch",
           "kcal": 1000,
           "protein": 100,
           "carbs": 100
-        }]
+        }
+      ]
     }
   },
   "POST /api/weekly": {
@@ -163,6 +167,53 @@
           "kcal": 3999,
           "protein": 129,
           "carbs": 480
+        }
+      ]
+    }
+  },
+  "POST /api/monthy": {
+    "description": "serves an object reflecting the total intakes of the user",
+    "requiredHeaders": {
+      "Authorization": {
+        "example": "Bearer theNewGeneratedToken.Comes.Here"
+      }
+    },
+    "exampleRequestBody": {
+      "userId": "7664566aa5e8aab81fb89b69"
+    },
+    "exampleResponse": {
+      "2024": [
+        {
+          "december": {
+            "kcal": 8870,
+            "protein": 246,
+            "carbs": 801
+          }
+        },
+        {
+          "october": {
+            "kcal": 1000,
+            "protein": 10,
+            "carbs": 40
+          }
+        }
+      ],
+      "2025": [
+        {
+          "january": {
+            "kcal": 17660,
+            "protein": 529,
+            "carbs": 1760
+          }
+        }
+      ],
+      "2022": [
+        {
+          "september": {
+            "kcal": 999,
+            "protein": 29,
+            "carbs": 59
+          }
         }
       ]
     }
