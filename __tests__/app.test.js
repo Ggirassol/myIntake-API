@@ -746,6 +746,128 @@ describe("GET /api/weekly", () => {
   })
 });
 
+describe("GET /api/monthly", () => {
+  it("returns monthly sums sorted by descending order for each year", () => {
+    return request(app)
+      .post("/api/monthly")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "6778436ee5e8aac81fb73f15"
+      })
+      .expect(200)
+      .then((res) => {
+        const monthNames = ["none", "january","february","march","april","may","june","july","august","september","october","november","december"];
+        const allRecords = res.body;
+        for (const year in allRecords) {
+          const monthsArr = [];
+          for (const month of allRecords[year]) {
+            monthsArr.push(Object.keys(month)[0])
+          }
+        const monthsOrder = monthsArr.map((month) => {
+          return monthNames.indexOf(month)
+        })
+        let descending = true;
+        for (let i=0; i< monthsOrder.length; i++) {
+          if (monthsOrder[i] > monthsOrder[i - 1]) {
+            descending = false;
+            break;
+          }
+          descending = true;
+        }
+        expect(descending).toBe(true)
+      }
+      })
+  })
+  it("returns monthly sums when user has records on intermittent months", () => {
+    return request(app)
+      .post("/api/monthly")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "6778436ee5e8aac81fb73f15",
+      })
+      .expect(200)
+      .then((res) => {
+        const monthlyRecords = res.body;
+        expect(monthlyRecords).toEqual({
+          2024: [
+            {
+              december: {
+                kcal: 8870,
+                protein: 246,
+                carbs: 801,
+              },
+            },
+            {
+              october: {
+                kcal: 1000,
+                protein: 10,
+                carbs: 40,
+              },
+            }
+          ],
+          2025:
+          [
+            {
+              january: {
+                kcal: 17660,
+                protein: 529,
+                carbs: 1760,
+              },
+            },
+          ],
+          2022: [
+            {
+              september: {
+                kcal: 999,
+                protein: 29,
+                carbs: 59
+              }
+            }
+          ]
+        });
+      });
+  })
+  it("returns message for no records at all", () => {
+    return request(app)
+      .post("/api/monthly")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "abc3548cafebcf7586acde80"
+      })
+      .expect(200)
+      .then((res) => {
+        const message = res.body;
+        expect(message).toEqual({ msg: "No intake ever registered"})
+      })
+  })
+  it("returns monthly sums for users with records only for a month", () => {
+    return request(app)
+      .post("/api/monthly")
+      .set("Authorization", `Bearer ${validToken}`)
+      .send({
+        userId: "684abefee8356aceaff74bb4",
+      })
+      .expect(200)
+      .then((res) => {
+        const message = res.body;
+        expect(message).toEqual({
+          2025: [
+            {
+              january: {
+                kcal: 2000,
+                protein: 60,
+                carbs: 140,
+              },
+            },
+          ],
+        });
+      });
+  })
+  testForTokens("post", "/api/monthly", {
+    userId: "6778436ee5e8aac81fb73f15"
+  })
+})
+
 
 describe("GET /api/", () => {
   it("responds with an object matching the endpoints.json file object", () => {
