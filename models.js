@@ -416,8 +416,77 @@ async function findWeeklyIntake(userId, date) {
   }
 }
 
+async function findAllMonthlyIntakes(userId) {
+
+  try {
+    await connectToDatabase();
+    const db = client.db("myIntake");
+    const intakes = db.collection("intakes");
+    
+    const monthly = await intakes.aggregate([
+      {
+        $match: {
+          userId: userId
+        }
+      },
+      {
+        $addFields: {
+          date: { $dateFromString: { dateString: "$date" } }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$date" },
+            month: { $month: "$date" }
+          },
+          totalKcal: { $sum: "$currIntake.kcal" },
+          totalProtein: { $sum: "$currIntake.protein" },
+          totalCarbs: { $sum: "$currIntake.carbs" }
+        }
+      },
+      {
+        $sort: {"_id.year": -1, "_id.month": -1 }
+      }
+    ]).toArray()
+
+  if (monthly.length === 0) {
+    return { msg: "No intake ever registered"}
+  }
+
+    const monthNames = ["none", "january","february","march","april","may","june","july","august","september","october","november","december"];
+
+    const monthlyRecords = {};
+
+    monthly.forEach((record) => {
+      monthlyRecords[record._id.year]
+        ? monthlyRecords[record._id.year].push({
+            [monthNames[record._id.month]]: {
+              kcal: record.totalKcal,
+              protein: record.totalProtein,
+              carbs: record.totalCarbs,
+            },
+          })
+        : (monthlyRecords[record._id.year] = [
+            {
+              [monthNames[record._id.month]]: {
+                kcal: record.totalKcal,
+                protein: record.totalProtein,
+                carbs: record.totalCarbs,
+              },
+            },
+          ]);
+    });
+
+    return monthlyRecords
+}
+catch (err) {
+    console.log("ERROR: ",err)
+}
+}
+
 function selectDescription() {
   return Promise.resolve(endpoints);
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake }
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake, findAllMonthlyIntakes }

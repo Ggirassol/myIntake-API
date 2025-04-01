@@ -217,6 +217,38 @@ async function seedTestingDatabase() {
         }],
       },
       {
+        userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32060"),
+        date: "2024-10-01",
+        currIntake: {
+          kcal: 1000,
+          protein: 10,
+          carbs: 40
+        },
+        intakes: [{
+          meal: "breakfast",
+          kcal: 1000,
+          protein: 10,
+          carbs: 40
+        }],
+      },
+      {
+        userId: "6778436ee5e8aac81fb73f15",
+        _id: new ObjectId("67dc45661f28ee4810c32111"),
+        date: "2022-09-20",
+        currIntake: {
+          kcal: 999,
+          protein: 29,
+          carbs: 59
+        },
+        intakes: [{
+          meal: "breakfast",
+          kcal: 999,
+          protein: 29,
+          carbs: 59
+        }],
+      },
+      {
         userId: "aa345ccd778fbde485ffaeda",
         _id: new ObjectId("67dc45661f28ee4810c32037"),
         date: "2024-12-31",
