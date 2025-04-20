@@ -3,6 +3,7 @@ const { bcryptPassword, passwordMatches } = require('./utils');
 const jwt = require('jsonwebtoken');
 const { ObjectId } = require("bson");
 const endpoints = require("./endpoints.json");
+const nodemailer = require("nodemailer");
 
 async function selectIntakeByDate(userId, date) {
     const regexUserId = /^[a-f0-9]{24}$/;
@@ -40,19 +41,81 @@ async function createUser(username, email, password) {
         const users = db.collection("users");
 
         const isEmailAlreadyRegistered = await users.findOne( {email: email})
-        if (isEmailAlreadyRegistered) {
-            return Promise.reject({ status: 400, msg: "Email already registered"})
-        }
+
+        const verificationToken = jwt.sign(
+          { data: email, time: Date.now(), },
+          process.env.VERIFY_TOKEN,
+          { expiresIn: "24h" }
+        );
 
         const userDoc = {
             name: username,
             email: email,
             password: await bcryptPassword(password),
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            verified: false,
+            verificationToken: verificationToken,
+            lastVerificationToken: new Date().toISOString()
         }
 
+        const verificationLink = `https://myintake-api.onrender.com/api/verify-email?token=${verificationToken}&email=${email}`;
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          host: "smtp.gmail.email",
+          port: 465,
+          secure: true,
+          auth: {
+            user: "giselaffsantos@gmail.com",
+            pass: process.env.EMAIL_PASSWORD,
+          },
+        });
+        async function sendEmail() {
+          const info = await transporter.sendMail({
+            from: '"My Intake" <giselaffsantos@gmail.com>',
+            to: email,
+            subject: "Verify your email for My Intake",
+            html: `<p><b> Hi ${username},</b></p>
+            <p>Thank you for signing up! Please verify your email to activate your account.</p>
+            <p>Tap the link below to complete your verification:</p>
+            <p>
+            <a href=${verificationLink}>Verify My Email</a>
+            </p>
+            <p>If you didn't register with us, please ignore this email.</p>
+            <p>Best Regards,</p>
+            <p><b>My Intake Team<b></p>`,
+          });
+          console.log("Message sent: %s", info.messageId);
+        }
+        
+        if (isEmailAlreadyRegistered) {
+          if (isEmailAlreadyRegistered.verified) {
+            return Promise.reject({
+              status: 400,
+              msg: "Email already registered and verified. Please login.",
+            })
+          } else {
+            const user = await users.updateOne(
+              { email: email },
+              {
+                $set: {
+                  verificationToken: verificationToken,
+                  lastVerificationToken: new Date().toISOString(),
+                }
+              }
+            );
+            if (user.modifiedCount === 1) {
+              await sendEmail();
+              return { msg: "New verification email sent"}
+            }
+          }
+        } else {
         const user = await users.insertOne(userDoc);
-        return { sucess: true}
+        await sendEmail();
+        return {
+          sucess: true
+        }
+        }
+
     }
     catch (err) {
         console.log("ERROR: ",err)
@@ -489,4 +552,17 @@ function selectDescription() {
   return Promise.resolve(endpoints);
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake, findAllMonthlyIntakes }
+async function getUserByEmail(email) {
+  try {
+    await connectToDatabase();
+    const db = client.db("myIntake");
+    const users = db.collection("users");
+
+    const user = await users.findOne({ email: email });
+    return user;
+  } catch (err) {
+    console.log("ERROR: ", err);
+  }
+}
+
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake, findAllMonthlyIntakes, getUserByEmail }

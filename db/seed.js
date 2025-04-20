@@ -18,6 +18,8 @@ async function seedTestingDatabase() {
       bcryptPassword("56bvcxnsvczx"),
       bcryptPassword("83fdjghldshflds"),
       bcryptPassword("56bvcxnsvczx"),
+      bcryptPassword("fgdAs35676."),
+      bcryptPassword("sdfgAAAArgd36;"),
     ]);
 
     const userDocs = [
@@ -27,6 +29,7 @@ async function seedTestingDatabase() {
         email: "maria@example.com",
         password: hashPasswords[0],
         createdAt: "2025-01-01",
+        verified: true,
         refreshToken: jwt.sign(
           { data: "6778436ee5e8aac81fb73f15" },
           process.env.REFRESH_TOKEN,
@@ -39,6 +42,7 @@ async function seedTestingDatabase() {
         email: "rui@example.com",
         password: hashPasswords[1],
         createdAt: "2024-12-31",
+        verified: true,
         refreshToken: jwt.sign(
           { userId: "aa345ccd778fbde485ffaeda" },
           process.env.REFRESH_TOKEN,
@@ -49,6 +53,7 @@ async function seedTestingDatabase() {
         _id: new ObjectId("abc3548cafebcf7586acde80"),
         name: "Joana",
         email: "joana@example.com",
+        verified: true,
         password: hashPasswords[2],
         createdAt: "2024-12-25",
       },
@@ -56,9 +61,31 @@ async function seedTestingDatabase() {
         _id: new ObjectId("684abefee8356aceaff74bb4"),
         name: "Pedro",
         email: "pedro@example.com",
+        verified: true,
         password: hashPasswords[3],
         createdAt: "2025-01-03",
       },
+      {
+        _id: new ObjectId("123adcfff3465aaaaff5555a"),
+        name: "Ludmila",
+        email: "ludmila@example.com",
+        password: hashPasswords[4],
+        createdAt:  new Date().toISOString().slice(0, 10),
+        verified: false,
+        verificationToken: jwt.sign(
+          { data: "ludmila@example.com" },
+          process.env.VERIFY_TOKEN,
+          { expiresIn: "24h" }),
+        lastVerificationToken: new Date().toISOString()
+      },
+      {
+        _id: new ObjectId("234deafff345231aaa1111aa"),
+        name: "Richard",
+        email: "richard@example.com",
+        verified: true,
+        password: hashPasswords[5],
+        createdAt: "2025-01-01",
+      }
     ];
 
     const resultUsers = await users.insertMany(userDocs);
@@ -281,7 +308,7 @@ async function seedTestingDatabase() {
         }],
       },
       {
-        userId: "abc3548cafebcf7586acde8",
+        userId: "abc3548cafebcf7586acde80",
         _id: new ObjectId("67dc45661f28ee4810c32003"),
         date: "2024-12-25",
         currIntake: {
@@ -297,7 +324,7 @@ async function seedTestingDatabase() {
         }],
       },
       {
-        userId: "abc3548cafebcf7586acde8",
+        userId: "abc3548cafebcf7586acde80",
         _id: new ObjectId("67dc45661f28ee4810c32034"),
         date: "2025-01-01",
         currIntake: {

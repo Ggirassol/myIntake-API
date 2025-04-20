@@ -3,9 +3,14 @@ const app = require("../app.js");
 const { seedTestingDatabase } = require("../db/seed.js");
 const { client } = require("../db/dbconnect.js");
 const jwt = require('jsonwebtoken');
-const { selectIntakeByDate } = require("../models.js");
 const endpoints = require("../endpoints.json");
 const { ObjectId } = require("bson");
+const { mock } = require("nodemailer");
+const { selectIntakeByDate, getUserByEmail } = require("../models.js");
+
+afterEach(() => {
+  mock.reset();
+});
 
 beforeEach(async () => {
   await seedTestingDatabase();
@@ -134,23 +139,38 @@ describe("GET /api/:date", () => {
 });
 
 describe("POST /api/register", () => {
-  it("returns an object with name, username and createdAt containing sign up date when sent a valid email and password", () => {
+  it("returns an object reflecting the successful operation, email is sent and user added to database", () => {
     return request(app)
       .post("/api/register")
       .send({
-        username: "Glória",
-        email: "gloria@example.com",
+        username: "NewUser",
+        email: "newuser@example.com",
         password: "bcLdef68.0;",
       })
       .expect(201)
       .then((res) => {
-        const result = res.body;
-        expect(result).toEqual({
-          sucess: true,
-        });
+        return getUserByEmail("newuser@example.com")
+          .then((user) => {
+            expect(user.email).toBe("newuser@example.com");
+            expect(user.name).toBe("NewUser");
+            return user;
+          })
+          .then((user) => {
+            const sentEmails = mock.getSentMail();
+            expect(sentEmails.length).toBe(1);
+            expect(sentEmails[0].to).toBe("newuser@example.com");
+            expect(sentEmails[0].subject).toContain("Verify");
+            expect(sentEmails[0].html).toContain(
+              `https://myintake-api.onrender.com/api/verify-email?token=${user.verificationToken}`
+            );
+            const result = res.body;
+            expect(result).toEqual({
+              sucess: true,
+            });
+          });
       });
   });
-  it("returns an error message when given an email already in use", () => {
+  it("returns an error message when given an email already registered and verified", () => {
     return request(app)
       .post("/api/register")
       .send({
@@ -161,8 +181,43 @@ describe("POST /api/register", () => {
       .expect(400)
       .then((res) => {
         const error = res.body;
-        expect(error.msg).toBe("Email already registered");
+        const sentEmails = mock.getSentMail();
+        expect(sentEmails.length).toBe(0);
+        expect(error.msg).toBe(
+          "Email already registered and verified. Please login."
+        );
       });
+  });
+  it("returns a message when given an email already registered but not verified, updates the verificationToken of the user on the database and sends new verification link", () => {
+    return getUserByEmail("ludmila@example.com").then((user) => {
+      const firstVerifyToken = user.verificationToken;
+      const firstVerifyTokenTime = user.lastVerificationToken;
+      return request(app)
+        .post("/api/register")
+        .send({
+          username: "Ludmila",
+          email: "ludmila@example.com",
+          password: "password4example",
+        })
+        .expect(201)
+        .then((res) => {
+          const result = res.body;
+          expect(result.msg).toBe("New verification email sent");
+          return getUserByEmail("ludmila@example.com").then((updatedUser) => {
+            const secondVerifyToken = updatedUser.verificationToken;
+            const secondVerifyTokenTime = updatedUser.lastVerificationToken;
+            expect(secondVerifyToken).not.toBe(firstVerifyToken);
+            expect(secondVerifyTokenTime).not.toBe(firstVerifyTokenTime);
+            const sentEmails = mock.getSentMail();
+            expect(sentEmails.length).toBe(1);
+            expect(sentEmails[0].to).toBe("ludmila@example.com");
+            expect(sentEmails[0].subject).toContain("Verify");
+            expect(sentEmails[0].html).toContain(
+              `https://myintake-api.onrender.com/api/verify-email?token=${secondVerifyToken}`
+            );
+          });
+        });
+    });
   });
 });
 
@@ -832,7 +887,7 @@ describe("GET /api/monthly", () => {
       .post("/api/monthly")
       .set("Authorization", `Bearer ${validToken}`)
       .send({
-        userId: "abc3548cafebcf7586acde80"
+        userId: "234deafff345231aaa1111aa"
       })
       .expect(200)
       .then((res) => {
