@@ -151,8 +151,17 @@ describe("POST /api/register", () => {
       .then((res) => {
         return getUserByEmail("newuser@example.com")
           .then((user) => {
-            expect(user.email).toBe("newuser@example.com");
-            expect(user.name).toBe("NewUser");
+            expect(Object.keys(user).length).toBe(8)
+            expect(user).toMatchObject({
+              _id: expect.any(ObjectId),
+              email: "newuser@example.com",
+              name: "NewUser",
+              password: expect.any(String),
+              createdAt: expect.any(String),
+              verified: false,
+              verificationToken: expect.any(String),
+              lastVerificationToken: expect.any(String),
+            })
             return user;
           })
           .then((user) => {
