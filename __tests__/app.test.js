@@ -138,7 +138,7 @@ describe("GET /api/:date", () => {
   testForTokens("get", "/api/2024-10-02", {userId: "aa345ccd778fbde485ffaeda"})
 });
 
-describe("POST /api/register", () => {
+describe.only("POST /api/register", () => {
   it("returns an object reflecting the successful operation, email is sent and user added to database", () => {
     return request(app)
       .post("/api/register")
@@ -151,8 +151,16 @@ describe("POST /api/register", () => {
       .then((res) => {
         return getUserByEmail("newuser@example.com")
           .then((user) => {
-            expect(user.email).toBe("newuser@example.com");
-            expect(user.name).toBe("NewUser");
+            expect(user).toMatchObject({
+              _id: expect.any(ObjectId),
+              email: "newuser@example.com",
+              name: "NewUser",
+              password: expect.any(String),
+              createdAt: expect.any(String),
+              verified: false,
+              verificationToken: expect.any(String),
+              lastVerificationToken: expect.any(String),
+            })
             return user;
           })
           .then((user) => {
