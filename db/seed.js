@@ -20,6 +20,7 @@ async function seedTestingDatabase() {
       bcryptPassword("56bvcxnsvczx"),
       bcryptPassword("fgdAs35676."),
       bcryptPassword("sdfgAAAArgd36;"),
+      bcryptPassword("chschjs2e27egd[][f"),
     ]);
 
     const userDocs = [
@@ -85,7 +86,20 @@ async function seedTestingDatabase() {
         verified: true,
         password: hashPasswords[5],
         createdAt: "2025-01-01",
-      }
+      },
+      {
+        _id: new ObjectId("234deafff345231aaa1111bb"),
+        name: "Rita",
+        email: "rita@example.com",
+        verified: false,
+        password: hashPasswords[6],
+        createdAt: new Date().toISOString().slice(0, 10),
+        verificationToken: jwt.sign(
+          { data: "rita@example.com" },
+          process.env.VERIFY_TOKEN,
+          { expiresIn: "-1h" }),
+        lastVerificationToken: new Date().toISOString()
+      },
     ];
 
     const resultUsers = await users.insertMany(userDocs);
