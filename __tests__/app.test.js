@@ -230,6 +230,105 @@ describe("POST /api/register", () => {
   });
 });
 
+describe("POST /api/verify-email", () => {
+  it("returns an object reflecting the successfull operation when verifying email", () => {
+    return getUserByEmail("ludmila@example.com")
+    .then((ludmilaData) => {
+      const token = ludmilaData.verificationToken
+      return request(app)
+    .get(`/api/verify-email/${token}/ludmila@example.com`)
+    .expect(200)
+    .then((res) => {
+      const body = res.body;
+      expect(body).toEqual({
+        success: true
+      })
+      return getUserByEmail("ludmila@example.com")
+      .then((updatedLudmilaData) => {
+        expect(updatedLudmilaData.verified).toBe(true)
+      })
+    })
+    })
+  })
+  it("returns an error message when token is invalid or expired", () => {
+    return getUserByEmail("rita@example.com")
+    .then((ritaData) => {
+      return request(app)
+      .get(`/api/verify-email/${ritaData.verificationToken}/rita@example.com`)
+      .expect(400)
+      .then((res) => {
+        const body = res.body;
+        expect(body).toEqual({
+          msg: "Token invalid or expired."
+        })
+        return getUserByEmail("rita@example.com")
+        .then((ritaNewData) => {
+          expect(ritaNewData.verified).toBe(false)
+        })
+      })
+    })
+  })
+  it("returns error message when token is missing", () => {
+    return request(app)
+    .get("/api/verify-email/marlene@example.com")
+    .expect(400)
+    .then((res) => {
+      const body = res.body
+      expect(body).toEqual({
+        msg: "Missing email or missing token"
+      })
+    })
+  })
+  it("returns error message when email is missing", () => {
+    return request(app)
+    .get("/api/verify-email/example.verify.token")
+    .expect(400)
+    .then((res) => {
+      const body = res.body
+      expect(body).toEqual({
+        msg: "Missing email or missing token"
+      })
+    })
+  })
+  it("returns error message when email is not registered", () => {
+    return request(app)
+    .get(`/api/verify-email/example.verify.token/julie@example.com`)
+    .expect(400)
+    .then((res) => {
+      const body = res.body
+      expect(body).toEqual({
+        msg: "Invalid verification attempt"
+      })
+    })
+  })
+  it("returns error message when email and verification token are not matching", () => {
+    return request(app)
+    .get("/api/verify-email/example.verify.token/ludmila@example.com")
+    .expect(400)
+    .then((res) => {
+      const body = res.body
+      expect(body).toEqual({
+        msg: "Invalid verification attempt"
+      })
+    })
+  })
+  it("returns error message for already verified email", () => {
+    return request(app)
+    .get("/api/verify-email/example.verify.token/pedro@example.com")
+    .send({
+      email: "pedro@example.com",
+      token: "example.verify.token"
+    })
+    .expect(400)
+    .then((res) => {
+      const body = res.body
+      expect(body).toEqual({
+        msg: "Email already verified"
+      })
+    })
+  })
+})
+
 describe("POST /api/auth", () => {
   it("returns a token when passed a valid email and password", () => {
     return request(app)

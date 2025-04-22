@@ -122,6 +122,40 @@ async function createUser(username, email, password) {
     }
 }
 
+async function findAndVerifyUser(token, email) {
+  if (!token || !email) {
+    return Promise.reject({ status: 400, msg: "Missing email or missing token"})
+  }
+  try {
+    await connectToDatabase();
+    const db = client.db("myIntake");
+    const users = db.collection("users");
+    const user = await users.findOne({ email: email });
+    if (user && user.verified === false && user.verificationToken === token) {
+      try {
+        const verified = jwt.verify(token, process.env.VERIFY_TOKEN)
+        const updatedUser = await users.updateOne(
+          { email: email, verificationToken: token },
+          { $set: { verified: true },
+            $unset: { verificationToken: "", lastVerificationToken: "" }
+          }
+        )
+        return { success: true };
+      } catch (err) {
+        console.log(err)
+        return Promise.reject({ status: 400, msg: "Token invalid or expired." });
+      }
+  } else if (user && user.verified === true) {
+    return Promise.reject({ status: 400, msg: "Email already verified"})
+  }
+  else {
+    return Promise.reject({ status: 400, msg: "Invalid verification attempt"})
+  }
+  } catch (err) {
+    console.log("ERROR: ", err);
+  }
+}
+
 async function logUser(email, password) {
   try {
     await connectToDatabase();
@@ -565,4 +599,4 @@ async function getUserByEmail(email) {
   }
 }
 
-module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake, findAllMonthlyIntakes, getUserByEmail }
+module.exports = { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake, findAllMonthlyIntakes, getUserByEmail, findAndVerifyUser }

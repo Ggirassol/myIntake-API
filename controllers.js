@@ -1,4 +1,4 @@
-const { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake, findAllMonthlyIntakes } = require('./models.js');
+const { selectIntakeByDate, createUser, logUser, generateNewToken, insertIntake, removeUserRefreshToken, selectDescription, editTodayIntake, findWeeklyIntake, findAllMonthlyIntakes, findAndVerifyUser } = require('./models.js');
 
 function getIntakeByDate(req, res, next) {
     const userId = req.body.userId;
@@ -15,6 +15,15 @@ function addUser(req, res, next) {
     createUser(username, email, password)
     .then((result) => {
         res.status(201).send( result )
+    })
+    .catch((err) => next(err));
+}
+
+function verifyUser(req, res, next) {
+    const { token, email } = req.params;
+    findAndVerifyUser(token, email)
+    .then((result) => {
+        res.status(200).send( result )
     })
     .catch((err) => next(err));
 }
@@ -97,4 +106,4 @@ function getEndpointsDescription(req, res, next) {
     .catch((err) => next(err));
 }
 
-module.exports = { getIntakeByDate, addUser, loginUser, createNewToken, addIntake, logoutUser, getEndpointsDescription, editIntake, getWeekIntake, getMonthlyIntake }
+module.exports = { getIntakeByDate, addUser, loginUser, createNewToken, addIntake, logoutUser, getEndpointsDescription, editIntake, getWeekIntake, getMonthlyIntake, verifyUser }
