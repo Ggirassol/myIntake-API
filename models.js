@@ -58,7 +58,7 @@ async function createUser(username, email, password) {
             lastVerificationToken: new Date().toISOString()
         }
 
-        const verificationLink = `https://myintake-api.onrender.com/api/verify-email?token=${verificationToken}&email=${email}`;
+        const verificationLink = `https://myintake-api.onrender.com/api/verify-email/${verificationToken}/${email}`;
         const transporter = nodemailer.createTransport({
           service: "gmail",
           host: "smtp.gmail.email",
@@ -100,6 +100,7 @@ async function createUser(username, email, password) {
                 $set: {
                   verificationToken: verificationToken,
                   lastVerificationToken: new Date().toISOString(),
+                  password: await bcryptPassword(password)
                 }
               }
             );
