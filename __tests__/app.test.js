@@ -65,10 +65,10 @@ function testForTokens(method, endpoint, body) {
 }
 
 
-describe("GET /api/:date", () => {
+describe("GET /api/date/:date", () => {
     it("returns an object with date, currIntake and intakes containing kcal, protein and carb properties when passed valid userId and valid date. code 200", () => {
       return request(app)
-        .get("/api/2024-12-31")
+        .get("/api/date/2024-12-31")
         .set("Authorization", `Bearer ${validToken}`)
         .send({ userId: "aa345ccd778fbde485ffaeda"})
         .expect(200)
@@ -93,7 +93,7 @@ describe("GET /api/:date", () => {
     });
     it("returns an error message when passed an userId with invalid format. code 400", () => {
       return request(app)
-      .get("/api/2024-12-31")
+      .get("/api/date/2024-12-31")
       .set("Authorization", `Bearer ${validToken}`)
       .send({ userId: "56765243fglkkhgf"})
       .expect(400)
@@ -104,7 +104,7 @@ describe("GET /api/:date", () => {
     })
     it("returns an error message when passed a date with invalid format. code 400", () => {
       return request(app)
-      .get("/api/31-12-2024")
+      .get("/api/date/31-12-2024")
       .set("Authorization", `Bearer ${validToken}`)
       .send({ userId: "aa345ccd778fbde485ffaeda"})
       .expect(400)
@@ -115,7 +115,7 @@ describe("GET /api/:date", () => {
     })
     it("returns an error message when passed an non existent userId. code 404", () => {
       return request(app)
-      .get("/api/2024-12-31")
+      .get("/api/date/2024-12-31")
       .set("Authorization", `Bearer ${validToken}`)
       .send({ userId: "34aecb8796aaeeff118877cc"})
       .expect(404)
@@ -126,7 +126,7 @@ describe("GET /api/:date", () => {
     })
     it("returns an error message when passed a valid userId but not existing date. code 404", () => {
       return request(app)
-      .get("/api/2024-10-02")
+      .get("/api/date/2024-10-02")
       .set("Authorization", `Bearer ${validToken}`)
       .send({ userId: "aa345ccd778fbde485ffaeda"})
       .expect(404)
@@ -135,7 +135,7 @@ describe("GET /api/:date", () => {
         expect(error.msg).toBe("No intake found for the given userID and date")
       })
     })
-  testForTokens("get", "/api/2024-10-02", {userId: "aa345ccd778fbde485ffaeda"})
+  testForTokens("get", "/api/date/2024-10-02", {userId: "aa345ccd778fbde485ffaeda"})
 });
 
 describe("POST /api/register", () => {
