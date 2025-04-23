@@ -170,7 +170,7 @@ describe("POST /api/register", () => {
             expect(sentEmails[0].to).toBe("newuser@example.com");
             expect(sentEmails[0].subject).toContain("Verify");
             expect(sentEmails[0].html).toContain(
-              `https://myintake-api.onrender.com/api/verify-email?token=${user.verificationToken}`
+              `https://myintake-api.onrender.com/api/verify-email/${user.verificationToken}/newuser@example.com`
             );
             const result = res.body;
             expect(result).toEqual({
@@ -197,10 +197,11 @@ describe("POST /api/register", () => {
         );
       });
   });
-  it("returns a message when given an email already registered but not verified, updates the verificationToken of the user on the database and sends new verification link", () => {
+  it("returns a message when given an email already registered but not verified, updates the verificationToken an password of the user on the database and sends new verification link", () => {
     return getUserByEmail("ludmila@example.com").then((user) => {
       const firstVerifyToken = user.verificationToken;
       const firstVerifyTokenTime = user.lastVerificationToken;
+      const firstPassword = user.password;
       return request(app)
         .post("/api/register")
         .send({
@@ -215,14 +216,16 @@ describe("POST /api/register", () => {
           return getUserByEmail("ludmila@example.com").then((updatedUser) => {
             const secondVerifyToken = updatedUser.verificationToken;
             const secondVerifyTokenTime = updatedUser.lastVerificationToken;
+            const secondPassword = updatedUser.password
             expect(secondVerifyToken).not.toBe(firstVerifyToken);
             expect(secondVerifyTokenTime).not.toBe(firstVerifyTokenTime);
+            expect(secondPassword).not.toBe(firstPassword);
             const sentEmails = mock.getSentMail();
             expect(sentEmails.length).toBe(1);
             expect(sentEmails[0].to).toBe("ludmila@example.com");
             expect(sentEmails[0].subject).toContain("Verify");
             expect(sentEmails[0].html).toContain(
-              `https://myintake-api.onrender.com/api/verify-email?token=${secondVerifyToken}`
+              `https://myintake-api.onrender.com/api/verify-email/${secondVerifyToken}/ludmila@example.com`
             );
           });
         });
